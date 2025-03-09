@@ -5,7 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import { generateDirectivoToken } from "../../../../lib/helpers/generators/JWT/directivoToken";
 import { verifyDirectivoPassword } from "../../../../lib/helpers/encriptations/directivo.encriptation";
 import { RolesSistema } from "../../../../interfaces/RolesSistema";
-import { DirectivoResponseSuccessLogin } from "../../../../interfaces/Directivo";
+import { ResponseSuccessLogin } from "../../../../interfaces/SiasisAPIs";
 
 const directivoLoginRouter = Router();
 const prisma = new PrismaClient();
@@ -87,12 +87,10 @@ directivoLoginRouter.post("/", (async (req: Request, res: Response) => {
     //   status: 201,
     //   headers: { "Set-Cookie": `${tokenSerialize}, ${roleSerialize}` },
 
-    const response: DirectivoResponseSuccessLogin = {
+    const response: ResponseSuccessLogin = {
       message: "Inicio de sesión exitoso",
       data: {
         Apellidos: directivo.Apellidos,
-        Id_Directivo: directivo.Id_Directivo,
-        Nombre_Usuario: directivo.Nombre_Usuario,
         Nombres: directivo.Nombres,
         Rol: RolesSistema.Directivo,
         token,
