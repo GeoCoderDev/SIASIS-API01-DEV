@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Request, Response, Router } from "express";
 
 import { PrismaClient } from "@prisma/client";
 
@@ -7,7 +7,7 @@ import { verifyDirectivoPassword } from "../../../../lib/helpers/encriptations/d
 import { RolesSistema } from "../../../../interfaces/RolesSistema";
 import { DirectivoResponseSuccessLogin } from "../../../../interfaces/Directivo";
 
-const router = Router();
+const directivoLoginRouter = Router();
 const prisma = new PrismaClient();
 
 export interface LoginBody {
@@ -15,12 +15,12 @@ export interface LoginBody {
   Contraseña: string;
 }
 
-router.get("/", (async (req: Request, res: Response) => {
+directivoLoginRouter.get("/", (async (req: Request, res: Response) => {
   return res.json({ message: "Login Directivo" });
 }) as any);
 
 // Ruta de login
-router.post("/", (async (req: Request, res: Response) => {
+directivoLoginRouter.post("/", (async (req: Request, res: Response) => {
   try {
     const { Nombre_Usuario, Contraseña }: LoginBody = req.body;
 
@@ -110,4 +110,4 @@ router.post("/", (async (req: Request, res: Response) => {
   }
 }) as any);
 
-export { router };
+export { directivoLoginRouter };
