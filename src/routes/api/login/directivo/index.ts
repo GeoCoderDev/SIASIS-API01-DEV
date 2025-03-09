@@ -110,4 +110,4 @@ directivoLoginRouter.post("/", (async (req: Request, res: Response) => {
   }
 }) as any);
 
-export { directivoLoginRouter };
+export default directivoLoginRouter;
