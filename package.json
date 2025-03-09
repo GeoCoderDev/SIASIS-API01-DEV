@@ -5,7 +5,7 @@
   "main": "src/app.ts",
   "scripts": {
     "dev": "nodemon ./src/app.ts",
-    "build": "npm install --legacy-peer-deps && tsc -p tsconfig.json && tsc && prisma generate",
+    "build": "tsc -p tsconfig.json && tsc && prisma generate",
     "start": "ts-node ./src/app.ts"
   },
   "repository": {
