@@ -15,6 +15,10 @@ export interface LoginBody {
   Contraseña: string;
 }
 
+router.get("/", (async (req: Request, res: Response) => {
+  return res.json({ message: "Login Directivo" });
+}) as any);
+
 // Ruta de login
 router.post("/", (async (req: Request, res: Response) => {
   try {
