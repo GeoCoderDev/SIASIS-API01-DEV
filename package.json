@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "description": "API para roles principales en SIASIS",
   "main": "src/app.ts",
-
   "scripts": {
-  "dev": "nodemon ./src/app.ts",
-  "build": "npx prisma generate && tsc",
-  "start": "node ./dist/app.js"
-},
+    "dev": "nodemon ./src/app.ts",
+    "build": "npm install --legacy-peer-deps && tsc -p tsconfig.json && tsc && prisma generate",
+    "start": "ts-node ./src/app.ts"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/GeoCoderDev/API01-SIASIS.git"
