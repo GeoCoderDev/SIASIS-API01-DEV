@@ -42,6 +42,7 @@ directivoLoginRouter.post("/", (async (req: Request, res: Response) => {
         Contraseña: true,
         Nombres: true,
         Apellidos: true,
+        Google_Drive_Foto_ID: true,
       },
     });
 
@@ -94,6 +95,7 @@ directivoLoginRouter.post("/", (async (req: Request, res: Response) => {
         Nombres: directivo.Nombres,
         Rol: RolesSistema.Directivo,
         token,
+        Google_Drive_Foto_ID: null,
       },
     };
 
