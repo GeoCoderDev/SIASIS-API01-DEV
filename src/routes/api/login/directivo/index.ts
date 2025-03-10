@@ -95,7 +95,7 @@ directivoLoginRouter.post("/", (async (req: Request, res: Response) => {
         Nombres: directivo.Nombres,
         Rol: RolesSistema.Directivo,
         token,
-        Google_Drive_Foto_ID: null,
+        Google_Drive_Foto_ID: directivo.Google_Drive_Foto_ID,
       },
     };
 
