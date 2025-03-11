@@ -8,6 +8,7 @@
     "build": "tsc -p tsconfig.json && tsc && prisma generate && ts-node ./src/app.ts",
     "start": "ts-node ./src/app.ts"
   },
+  
   "repository": {
     "type": "git",
     "url": "git+https://github.com/GeoCoderDev/API01-SIASIS.git"
