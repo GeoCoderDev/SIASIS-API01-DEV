@@ -5,7 +5,7 @@ import { validateImageType } from "../../../../lib/helpers/validators/validateIm
 import { validateFileSize } from "../../../../lib/helpers/validators/validateFileSize";
 import { google } from "googleapis";
 import { deleteFileFromDrive } from "../../../../lib/helpers/functions/GoogleDrive/deleteFileFromDrive";
-import { uploadFileToDrive } from "../../../../lib/helpers/upload/uploadFileToDrive";
+import { uploadFileToDrive } from "../../../../lib/helpers/functions/GoogleDrive/uploadFileToDrive";
 
 const router = Router();
 
@@ -95,7 +95,7 @@ router.put("/", upload.single("profilePhoto"), (async (
       await deleteFileFromDrive(directivo.Google_Drive_Foto_ID, oauth2Client);
     }
 
-    // 6. Generar nombre del archivo basado en el DNI y nombre de usuario
+    // 6. Generar nombre del archivo basado en el nombre de usuario
     const fileExtension = file.originalname.split(".").pop() || "png";
     const fileName = `${nombreUsuario}.${fileExtension}`;
 
