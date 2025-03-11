@@ -7,7 +7,7 @@ import { verifyDirectivoPassword } from "../../../../lib/helpers/encriptations/d
 import { RolesSistema } from "../../../../interfaces/RolesSistema";
 import { ResponseSuccessLogin } from "../../../../interfaces/SiasisAPIs";
 
-const directivoLoginRouter = Router();
+const router = Router();
 const prisma = new PrismaClient();
 
 export interface LoginBody {
@@ -15,12 +15,12 @@ export interface LoginBody {
   Contraseña: string;
 }
 
-directivoLoginRouter.get("/", (async (req: Request, res: Response) => {
+router.get("/", (async (req: Request, res: Response) => {
   return res.json({ message: "Login Directivo" });
 }) as any);
 
 // Ruta de login
-directivoLoginRouter.post("/", (async (req: Request, res: Response) => {
+router.post("/", (async (req: Request, res: Response) => {
   try {
     const { Nombre_Usuario, Contraseña }: LoginBody = req.body;
 
@@ -110,4 +110,4 @@ directivoLoginRouter.post("/", (async (req: Request, res: Response) => {
   }
 }) as any);
 
-export default directivoLoginRouter;
+export default router;
