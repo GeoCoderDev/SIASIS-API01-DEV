@@ -1,8 +1,4 @@
 import { google } from 'googleapis';
-import fs from 'fs';
-import path from 'path';
-import os from 'os';
-import { v4 as uuidv4 } from 'uuid';
 import { Readable } from 'stream';
 
 /**
@@ -36,17 +32,7 @@ export async function uploadFileToDrive(
     });
 
     // Variable para el archivo temporal si se necesita
-    let tempFilePath: string | null = null;
-    
-    // Si el archivo viene como buffer (como en Vercel), guardarlo temporalmente
-    if (file.buffer) {
-      const tempDir = os.tmpdir();
-      tempFilePath = path.join(tempDir, `temp_${uuidv4()}_${fileName}`);
-      fs.writeFileSync(tempFilePath, file.buffer);
-    }
-
-    // Ruta real del archivo (temporal o el path original)
-    const filePath = tempFilePath || file.path;
+    let bufferStream: Readable | null = null;
     
     // Separar la ruta en carpetas
     const folders = folderPath.split('/').filter(f => f.trim() !== '');
@@ -86,20 +72,11 @@ export async function uploadFileToDrive(
     });
     
     let fileId = '';
-    let body: fs.ReadStream | Readable;
     
-    // Crear stream para subir el archivo
-    if (filePath) {
-      body = fs.createReadStream(filePath);
-    } else if (file.buffer) {
-      // Si por alguna razón no tenemos filePath pero sí buffer
-      const bufferStream = new Readable();
-      bufferStream.push(file.buffer);
-      bufferStream.push(null); // Indicar fin del stream
-      body = bufferStream;
-    } else {
-      throw new Error('No se pudo crear un stream del archivo');
-    }
+    // Crear un stream desde el buffer en memoria (evitando escribir en el sistema de archivos)
+    bufferStream = new Readable();
+    bufferStream.push(file.buffer);
+    bufferStream.push(null); // Indicar fin del stream
     
     if (existingFiles.data.files && existingFiles.data.files.length > 0) {
       // Actualizar el archivo existente
@@ -108,7 +85,7 @@ export async function uploadFileToDrive(
         fileId: fileId,
         media: {
           mimeType: file.mimetype,
-          body: body,
+          body: bufferStream,
         },
       });
     } else {
@@ -121,7 +98,7 @@ export async function uploadFileToDrive(
         },
         media: {
           mimeType: file.mimetype,
-          body: body,
+          body: bufferStream,
         },
       });
       fileId = response.data.id || '';
@@ -141,11 +118,6 @@ export async function uploadFileToDrive(
       fileId: fileId,
       fields: 'id, webContentLink, webViewLink',
     });
-    
-    // Limpiar archivos temporales si se crearon
-    if (tempFilePath && fs.existsSync(tempFilePath)) {
-      fs.unlinkSync(tempFilePath);
-    }
     
     return {
       id: fileInfo.data.id || '',
