@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "API para roles principales en SIASIS",
   "main": "src/app.ts",
-"scripts": {
+
+  "scripts": {
   "dev": "nodemon ./src/app.ts",
   "build": "prisma generate && tsc -p tsconfig.json",
   "start": "node dist/app.js"
