@@ -5,10 +5,9 @@
   "main": "src/app.ts",
   "scripts": {
     "dev": "nodemon ./src/app.ts",
-    "build": "prisma generate && tsc -p tsconfig.json",
-    "start": "node dist/app.js"
+    "build": "prisma generate && ts-node ./src/app.ts",
+    "start": "ts-node ./src/app.ts"
   },
-
   "repository": {
     "type": "git",
     "url": "git+https://github.com/GeoCoderDev/API01-SIASIS.git"
@@ -31,6 +30,7 @@
     "googleapis": "^146.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.12.1",
+    "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "prisma": "^6.4.1",
     "ts-node": "^10.9.2",
