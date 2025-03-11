@@ -3,10 +3,7 @@
   "builds": [
     {
       "src": "src/app.ts",
-      "use": "@vercel/node",
-      "config": {
-        "buildCommand": "npx prisma generate && tsc -p tsconfig.json"
-      }
+      "use": "@vercel/node"
     }
   ],
   "routes": [
@@ -18,5 +15,6 @@
       "src": "/(.*)",
       "dest": "src/app.ts"
     }
-  ]
+  ],
+  "outputDirectory": "dist"
 }
