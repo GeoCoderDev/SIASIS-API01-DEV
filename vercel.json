@@ -15,6 +15,5 @@
       "src": "/(.*)",
       "dest": "src/app.ts"
     }
-  ],
-  "outputDirectory": "dist"
+  ]
 }
