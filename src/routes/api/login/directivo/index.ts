@@ -6,6 +6,7 @@ import { generateDirectivoToken } from "../../../../lib/helpers/generators/JWT/d
 import { verifyDirectivoPassword } from "../../../../lib/helpers/encriptations/directivo.encriptation";
 import { RolesSistema } from "../../../../interfaces/RolesSistema";
 import { ResponseSuccessLogin } from "../../../../interfaces/SiasisAPIs";
+import { Genero } from "../../../../interfaces/Genero";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -43,6 +44,7 @@ router.post("/", (async (req: Request, res: Response) => {
         Nombres: true,
         Apellidos: true,
         Google_Drive_Foto_ID: true,
+        Genero: true,
       },
     });
 
@@ -96,6 +98,7 @@ router.post("/", (async (req: Request, res: Response) => {
         Rol: RolesSistema.Directivo,
         token,
         Google_Drive_Foto_ID: directivo.Google_Drive_Foto_ID,
+        Genero: directivo.Genero as Genero,
       },
     };
 
