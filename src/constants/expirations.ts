@@ -1,2 +1,7 @@
-export const DIRECTIVO_SESSION_EXPIRATION = 60 * 60 * 5; // 5 horas
-
+export const DIRECTIVOS_SESSION_EXPIRATION = 60 * 60 * 5; // 5 horas
+export const AUXILIARES_SESSION_EXPIRATION = 60 * 60 * 5; // 5 horas
+export const PROFESORES_PRIMARIA_SESSION_EXPIRATION = 60 * 60 * 5; // 5 horas
+export const PROFESORES_SECUNDARIA_SESSION_EXPIRATION = 60 * 60 * 5; // 5 horas
+export const TUTOR_SESSION_EXPIRATION = 60 * 60 * 5; // 5 horas
+export const RESPONSABLES_SESSION_EXPIRATION = 60 * 60 * 5; // 5 horas
+export const PERSONAL_ADMINISTRATIVO_SESSION_EXPIRATION = 60 * 60 * 5; // 5 horas

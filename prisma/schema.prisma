@@ -11,12 +11,12 @@ model T_Directivos {
   Id_Directivo         Int     @id @default(autoincrement())
   Nombres              String  @db.VarChar(60)
   Apellidos            String  @db.VarChar(60)
-  Genero               String  @db.VarChar(1)  // Reemplazado ENUM por VARCHAR(1)
+  Genero               String  @db.VarChar(1) // Reemplazado ENUM por VARCHAR(1)
   DNI                  String  @db.VarChar(8)
   Nombre_Usuario       String  @unique @db.VarChar(40)
   Correo_Electronico   String  @db.VarChar(70)
   Celular              String  @db.VarChar(9)
-  Contraseña           String  @db.Text
+  Contraseña          String  @db.Text
   Google_Drive_Foto_ID String? @db.Text
 
   @@map("T_Directivos")
@@ -41,7 +41,7 @@ model T_Responsables {
   Apellidos            String             @db.VarChar(60)
   Nombre_Usuario       String             @unique @db.VarChar(40)
   Celular              String?            @db.VarChar(9)
-  Contraseña           String             @db.Text
+  Contraseña          String             @db.Text
   Google_Drive_Foto_ID String?            @db.Text
   relaciones           T_Relaciones_E_R[]
 
@@ -50,7 +50,7 @@ model T_Responsables {
 
 model T_Relaciones_E_R {
   Id_Relacion     Int            @id @default(autoincrement())
-  Tipo            String         @db.VarChar(1)  // Reemplazado ENUM por VARCHAR(1)
+  Tipo            String         @db.VarChar(1) // Reemplazado ENUM por VARCHAR(1)
   DNI_Responsable String         @db.VarChar(8)
   DNI_Estudiante  String         @db.VarChar(8)
   responsable     T_Responsables @relation(fields: [DNI_Responsable], references: [DNI_Responsable])
@@ -63,12 +63,12 @@ model T_Profesores_Primaria {
   DNI_Profesor_Primaria String                                          @id @db.VarChar(8)
   Nombres               String                                          @db.VarChar(60)
   Apellidos             String                                          @db.VarChar(60)
-  Genero                String                                          @db.VarChar(1)  // Reemplazado ENUM por VARCHAR(1)
+  Genero                String                                          @db.VarChar(1) // Reemplazado ENUM por VARCHAR(1)
   Nombre_Usuario        String                                          @unique @db.VarChar(40)
   Estado                Boolean
   Correo_Electronico    String?                                         @db.VarChar(70)
   Celular               String                                          @db.VarChar(9)
-  Contraseña            String                                          @db.Text
+  Contraseña           String                                          @db.Text
   Google_Drive_Foto_ID  String?                                         @db.Text
   aulas                 T_Aulas[]
   registros_entrada     T_Control_Entrada_Mensual_Profesores_Primaria[]
@@ -81,12 +81,12 @@ model T_Profesores_Secundaria {
   DNI_Profesor_Secundaria String                                            @id @db.VarChar(8)
   Nombres                 String                                            @db.VarChar(60)
   Apellidos               String                                            @db.VarChar(60)
-  Genero                  String                                            @db.VarChar(1)  // Reemplazado ENUM por VARCHAR(1)
+  Genero                  String                                            @db.VarChar(1) // Reemplazado ENUM por VARCHAR(1)
   Nombre_Usuario          String                                            @unique @db.VarChar(40)
   Estado                  Boolean
   Correo_Electronico      String?                                           @db.VarChar(70)
   Celular                 String                                            @db.VarChar(9)
-  Contraseña              String                                            @db.Text
+  Contraseña             String                                            @db.Text
   Google_Drive_Foto_ID    String?                                           @db.Text
   aulas                   T_Aulas[]
   cursos                  T_Cursos_Horario[]
@@ -98,7 +98,7 @@ model T_Profesores_Secundaria {
 
 model T_Aulas {
   Id_Aula                 Int                      @id @default(autoincrement())
-  Nivel                   String                   @db.VarChar(10)  // Reemplazado ENUM por VARCHAR(10)
+  Nivel                   String                   @db.VarChar(10) // Reemplazado ENUM por VARCHAR(10)
   Grado                   Int                      @db.Integer
   Seccion                 String                   @db.VarChar(2)
   Color                   String                   @db.VarChar(15)
@@ -171,12 +171,12 @@ model T_Auxiliares {
   DNI_Auxiliar         String  @id @db.VarChar(8)
   Nombres              String  @db.VarChar(60)
   Apellidos            String  @db.VarChar(60)
-  Genero               String  @db.VarChar(1)  // Reemplazado ENUM por VARCHAR(1)
+  Genero               String  @db.VarChar(1) // Reemplazado ENUM por VARCHAR(1)
   Nombre_Usuario       String  @unique @db.VarChar(40)
   Estado               Boolean
   Correo_Electronico   String? @db.VarChar(70)
   Celular              String  @db.VarChar(9)
-  Contraseña           String  @db.Text
+  Contraseña          String  @db.Text
   Google_Drive_Foto_ID String? @db.Text
 
   registros_entrada T_Control_Entrada_Mensual_Auxiliar[]
@@ -209,11 +209,11 @@ model T_Personal_Administrativo {
   DNI_Personal_Administrativo String   @id @db.VarChar(8)
   Nombres                     String   @db.VarChar(60)
   Apellidos                   String   @db.VarChar(60)
-  Genero                      String   @db.VarChar(1)  // Reemplazado ENUM por VARCHAR(1)
+  Genero                      String   @db.VarChar(1) // Reemplazado ENUM por VARCHAR(1)
   Nombre_Usuario              String   @unique @db.VarChar(40)
   Estado                      Boolean
   Celular                     String   @db.VarChar(9)
-  Contraseña                  String   @db.Text
+  Contraseña                 String   @db.Text
   Google_Drive_Foto_ID        String?  @db.Text
   Horario_Laboral_Entrada     DateTime @db.Time
   Horario_Laboral_Salida      DateTime @db.Time
@@ -246,7 +246,7 @@ model T_Control_Salida_Mensual_Personal_Administrativo {
 
 model T_Bloqueo_Roles {
   Id_Bloqueo_Rol       Int     @id @default(autoincrement())
-  Rol                  String  @db.VarChar(2)  // Reemplazado ENUM por VARCHAR(2)
+  Rol                  String  @db.VarChar(2) // Reemplazado ENUM por VARCHAR(2)
   Bloqueo_Total        Boolean
   Timestamp_Desbloqueo BigInt // Timestamp Unix para el desbloqueo
 
