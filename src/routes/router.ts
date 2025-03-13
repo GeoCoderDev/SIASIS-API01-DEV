@@ -6,5 +6,7 @@ const router = Router();
 
 router.use("/login", loginRouter);
 router.use("/directivo", directivoRouter);
+// router.use("/mi-data", )
+
 
 export default router;

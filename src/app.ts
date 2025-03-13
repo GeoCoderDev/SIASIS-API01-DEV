@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import router from "./routes/router";
+// import { encryptProfesorTutorSecundariaPassword } from "./lib/helpers/encriptations/profesorTutotSecundaria.encriptation";
 
 dotenv.config();
 
@@ -13,6 +14,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api", router);
+
+// console.log(encryptProfesorTutorSecundariaPassword("12345678"));
 
 //Ruta de 404 NOT FOUND
 app.use("*", (req, res) => {

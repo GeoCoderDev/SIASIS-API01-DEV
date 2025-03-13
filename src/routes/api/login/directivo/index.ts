@@ -5,16 +5,13 @@ import { PrismaClient } from "@prisma/client";
 import { generateDirectivoToken } from "../../../../lib/helpers/generators/JWT/directivoToken";
 import { verifyDirectivoPassword } from "../../../../lib/helpers/encriptations/directivo.encriptation";
 import { RolesSistema } from "../../../../interfaces/RolesSistema";
-import { ResponseSuccessLogin } from "../../../../interfaces/SiasisAPIs";
+import { LoginBody, ResponseSuccessLogin } from "../../../../interfaces/SiasisAPIs";
 import { Genero } from "../../../../interfaces/Genero";
 
 const router = Router();
 const prisma = new PrismaClient();
 
-export interface LoginBody {
-  Nombre_Usuario: string;
-  Contraseña: string;
-}
+
 
 router.get("/", (async (req: Request, res: Response) => {
   return res.json({ message: "Login Directivo" });
@@ -74,21 +71,6 @@ router.post("/", (async (req: Request, res: Response) => {
       directivo.Id_Directivo,
       directivo.Nombre_Usuario
     );
-
-    // const cookies = [
-    //   createCookie("token", token),
-    //   createCookie("Nombre_Usuario", directivo.Nombre_Usuario),
-    //   createCookie("Rol", "D"),
-    //   createCookie("Nombres", directivo.Nombres),
-    //   createCookie("Apellidos", directivo.Apellidos),
-    // ];
-
-    // // Establecer las cookies en la respuesta
-    // res.setHeader("Set-Cookie", cookies.join(", "));
-
-    // return new Response(null, {
-    //   status: 201,
-    //   headers: { "Set-Cookie": `${tokenSerialize}, ${roleSerialize}` },
 
     const response: ResponseSuccessLogin = {
       message: "Inicio de sesión exitoso",
