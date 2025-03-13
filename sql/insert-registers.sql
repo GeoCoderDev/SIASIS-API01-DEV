@@ -1,4 +1,11 @@
 
+-- Insertar directivos en una sola consulta
+INSERT INTO "T_Directivos" 
+("Id_Directivo", "Nombres", "Apellidos", "Genero", "DNI", "Nombre_Usuario", "Correo_Electronico", "Celular", "Contraseña", "Google_Drive_Foto_ID")
+VALUES
+(1, 'Elena Serafina', 'Culanco Escolco', 'F', '00156433', 'director.asuncion8', 'elena.culanco@ie20935.edu.pe', '989729659', '4eba4c4db1520ba8d1845f06c6f71daf:7a886b91d9d08452729ccb90b5f1d90f', NULL),
+(2, 'María Luisa', 'Martínez Quispe', 'F', '45674545', 'subdirector.asuncion8', 'marialuisa.martinez@ie20935.edu.pe', '955309963', '4eba4c4db1520ba8d1845f06c6f71daf:7a886b91d9d08452729ccb90b5f1d90f', NULL);
+
 
 -- Insertar 10 profesores de primaria en la base de datos
 INSERT INTO "T_Profesores_Primaria" 
@@ -51,3 +58,11 @@ VALUES
 ('SECUNDARIA', 2, 'B', '#42f56f', '56789003'), -- Aula 2 asignada a Luis Patiño
 ('SECUNDARIA', 3, 'A', '#f54242', '56789005'), -- Aula 3 asignada a Raúl Torres
 ('SECUNDARIA', 4, 'B', '#f5d442', '56789007'); -- Aula 4 asignada a Eduardo Campos
+
+
+-- Insertar 2 registros de personal administrativo en la base de datos
+INSERT INTO "T_Personal_Administrativo" 
+("DNI_Personal_Administrativo", "Nombres", "Apellidos", "Genero", "Nombre_Usuario", "Estado", "Celular", "Contraseña", "Google_Drive_Foto_ID", "Horario_Laboral_Entrada", "Horario_Laboral_Salida")
+VALUES
+('23456789', 'Silvia', 'Ramírez Vargas', 'F', 'silvia.ramirez', TRUE, '934567890', '1364af80ac1ed4ca4a4261480eb21e84:11d9eb52493155130bdb61d232f4dbb4', NULL, '07:30:00', '15:30:00'),
+('23456790', 'Alberto', 'Gómez Palacios', 'M', 'alberto.gomez', TRUE, '934567891', '1364af80ac1ed4ca4a4261480eb21e84:11d9eb52493155130bdb61d232f4dbb4', NULL, '08:00:00', '16:00:00');
