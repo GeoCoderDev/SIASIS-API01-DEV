@@ -66,3 +66,44 @@ INSERT INTO "T_Personal_Administrativo"
 VALUES
 ('23456789', 'Silvia', 'Ramírez Vargas', 'F', 'silvia.ramirez', TRUE, '934567890', '1364af80ac1ed4ca4a4261480eb21e84:11d9eb52493155130bdb61d232f4dbb4', NULL, '07:30:00', '15:30:00'),
 ('23456790', 'Alberto', 'Gómez Palacios', 'M', 'alberto.gomez', TRUE, '934567891', '1364af80ac1ed4ca4a4261480eb21e84:11d9eb52493155130bdb61d232f4dbb4', NULL, '08:00:00', '16:00:00');
+
+
+
+-- -- Insertar 7 registros para la tabla T_Bloqueo_Roles
+-- INSERT INTO "T_Bloqueo_Roles" 
+-- ("Id_Bloqueo_Rol", "Rol", "Bloqueo_Total", "Timestamp_Desbloqueo")
+-- VALUES
+-- (1, 'D', FALSE, EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP + INTERVAL '24 hours'))), -- Directivo (desbloqueado en 24 horas)
+-- (2, 'A', FALSE, EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP + INTERVAL '12 hours'))), -- Auxiliar (desbloqueado en 12 horas)
+-- (3, 'PP', FALSE, EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP + INTERVAL '8 hours'))), -- Profesor Primaria (desbloqueado en 8 horas)
+-- (4, 'PS', FALSE, EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP + INTERVAL '6 hours'))), -- Profesor Secundaria (desbloqueado en 6 horas)
+-- (5, 'TS', FALSE, EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP + INTERVAL '4 hours'))), -- Tutor Secundaria (desbloqueado en 4 horas)
+-- (6, 'R', FALSE, EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP + INTERVAL '2 hours'))), -- Responsable (desbloqueado en 2 horas)
+-- (7, 'PA', FALSE, EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP + INTERVAL '48 hours'))); -- Personal Administrativo (desbloqueado en 48 horas)
+
+
+-- Insertar 7 registros para la tabla T_Bloqueo_Roles sin bloqueos activos
+INSERT INTO "T_Bloqueo_Roles" 
+("Id_Bloqueo_Rol", "Rol", "Bloqueo_Total", "Timestamp_Desbloqueo")
+VALUES
+(1, 'D', FALSE, 0), -- Directivo (sin bloqueo)
+(2, 'A', FALSE, 0), -- Auxiliar (sin bloqueo)
+(3, 'PP', FALSE, 0), -- Profesor Primaria (sin bloqueo)
+(4, 'PS', FALSE, 0), -- Profesor Secundaria (sin bloqueo)
+(5, 'TS', FALSE, 0), -- Tutor Secundaria (sin bloqueo)
+(6, 'R', FALSE, 0), -- Responsable (sin bloqueo)
+(7, 'PA', FALSE, 0); -- Personal Administrativo (sin bloqueo)
+
+
+-- Inserción de datos en la tabla T_Horarios_Asistencia
+INSERT INTO "T_Horarios_Asistencia" ("Nombre", "Valor", "Descripcion", "Ultima_Modificacion") VALUES
+('Hora_Inicio_Asistencia_Primaria', '07:45:00', 'Hora de inicio para tomar asistencia en el nivel primaria', CURRENT_TIMESTAMP),
+('Hora_Final_Asistencia_Primaria', '12:45:00', 'Hora límite para tomar asistencia en el nivel primaria', CURRENT_TIMESTAMP),
+('Hora_Inicio_Asistencia_Secundaria', '13:00:00', 'Hora de inicio para tomar asistencia en el nivel secundaria', CURRENT_TIMESTAMP),
+('Hora_Final_Asistencia_Secundaria', '18:30:00', 'Hora límite para tomar asistencia en el nivel secundaria', CURRENT_TIMESTAMP),
+('Inicio_Horario_Laboral_Profesores_Primaria', '07:45:00', 'Hora de inicio de la jornada laboral para profesores de primaria', CURRENT_TIMESTAMP),
+('Fin_Horario_Laboral_Profesores_Primaria', '12:45:00', 'Hora de fin de la jornada laboral para profesores de primaria', CURRENT_TIMESTAMP),
+('Inicio_Horario_Laboral_Secundaria', '13:00:00', 'Hora de inicio de la jornada laboral para profesores de secundaria', CURRENT_TIMESTAMP),
+('Fin_Horario_Laboral_Secundaria', '18:30:00', 'Hora de fin de la jornada laboral para profesores de secundaria', CURRENT_TIMESTAMP),
+('Inicio_Horario_Laboral_Auxiliar', '13:00:00', 'Hora de inicio de la jornada laboral para auxiliares', CURRENT_TIMESTAMP),
+('Fin_Horario_Laboral_Auxiliar', '18:30:00', 'Hora de fin de la jornada laboral para auxiliares', CURRENT_TIMESTAMP);

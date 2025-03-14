@@ -4,19 +4,22 @@ import { RolesSistema } from "../interfaces/RolesSistema";
 import { PrismaClient } from "@prisma/client";
 import { AuthErrorTypes } from "../interfaces/errors/AuthErrorTypes";
 import { verificarBloqueoRol } from "../lib/helpers/verificators/verificarBloqueoRol";
-import { DirectivoAuthenticated, JWTPayload } from "../interfaces/JWTPayload";
+import {
+  JWTPayload,
+  ProfesorTutorSecundariaAuthenticated,
+} from "../interfaces/JWTPayload";
 
 const prisma = new PrismaClient();
 
-// Middleware para verificar si el usuario es un Directivo
-const isDirectivoAuthenticated = async (
+// Middleware para verificar si el usuario es un Profesor de Secundaria
+const isProfesorSecundariaAuthenticated = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     // Si ya está autenticado con algún rol, continuar
-    if (req.isAuthenticated) {
+    if (req.isAuthenticated ) {
       return next();
     }
 
@@ -43,17 +46,18 @@ const isDirectivoAuthenticated = async (
     }
 
     const token = parts[1];
-    const jwtSecretKey = process.env.JWT_KEY_DIRECTIVOS!;
+    const jwtSecretKey = process.env.JWT_KEY_PROFESORES_SECUNDARIA!;
 
     try {
       // Verificar el token
       const decodedPayload = jwt.verify(token, jwtSecretKey) as JWTPayload;
 
-      // Verificar que el rol sea de Directivo
-      if (decodedPayload.Rol !== RolesSistema.Directivo) {
+      // Verificar que el rol sea de Profesor Secundaria
+      if (decodedPayload.Rol !== RolesSistema.ProfesorSecundaria) {
         req.authError = {
           type: AuthErrorTypes.TOKEN_WRONG_ROLE,
-          message: "El token no corresponde a un usuario directivo",
+          message:
+            "El token no corresponde a un usuario profesor de secundaria",
         };
         return next();
       }
@@ -62,25 +66,28 @@ const isDirectivoAuthenticated = async (
         // Verificar si el rol está bloqueado
         const bloqueado = await verificarBloqueoRol(
           req,
-          RolesSistema.Auxiliar,
+          RolesSistema.ProfesorSecundaria,
           next
         );
 
         if (bloqueado) {
           return; // La función verificarBloqueoRol ya llamó a next()
         }
-
-        // Verificar si el directivo existe
-        const directivo = await prisma.t_Directivos.findUnique({
+        // Verificar si el profesor de secundaria existe y está activo
+        const profesor = await prisma.t_Profesores_Secundaria.findUnique({
           where: {
-            Id_Directivo: Number(decodedPayload.ID_Usuario),
+            DNI_Profesor_Secundaria: decodedPayload.ID_Usuario,
+          },
+          select: {
+            Estado: true,
           },
         });
 
-        if (!directivo) {
+        if (!profesor || !profesor.Estado) {
           req.authError = {
             type: AuthErrorTypes.USER_INACTIVE,
-            message: "La cuenta de directivo no existe",
+            message:
+              "La cuenta de profesor de secundaria está inactiva o no existe",
           };
           return next();
         }
@@ -95,13 +102,12 @@ const isDirectivoAuthenticated = async (
 
       // Agregar información del usuario decodificada a la solicitud para uso posterior
       req.user = {
-        Id_Directivo: Number(decodedPayload.ID_Usuario),
+        DNI_Profesor_Secundaria: decodedPayload.ID_Usuario,
         Nombre_Usuario: decodedPayload.Nombre_Usuario,
-      } as DirectivoAuthenticated;
-
+      } as ProfesorTutorSecundariaAuthenticated;
       // Marcar como autenticado para que los siguientes middlewares no reprocesen
       req.isAuthenticated = true;
-      req.userRole = RolesSistema.Directivo;
+      req.userRole = RolesSistema.ProfesorSecundaria;
 
       // Si todo está bien, continuar
       next();
@@ -119,7 +125,7 @@ const isDirectivoAuthenticated = async (
         if (jwtError.message === "invalid signature") {
           req.authError = {
             type: AuthErrorTypes.TOKEN_INVALID_SIGNATURE,
-            message: "La firma del token es inválida DIRECTIVO",
+            message: "La firma del token es inválida AQUI PROFESOR SECUNDARIA",
           };
         } else {
           req.authError = {
@@ -139,7 +145,7 @@ const isDirectivoAuthenticated = async (
       next();
     }
   } catch (error) {
-    console.error("Error en middleware de directivo:", error);
+    console.error("Error en middleware de profesor de secundaria:", error);
     req.authError = {
       type: AuthErrorTypes.UNKNOWN_ERROR,
       message: "Error desconocido en el proceso de autenticación",
@@ -149,4 +155,4 @@ const isDirectivoAuthenticated = async (
   }
 };
 
-export default isDirectivoAuthenticated;
+export default isProfesorSecundariaAuthenticated;
