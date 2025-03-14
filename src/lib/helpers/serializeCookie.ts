@@ -1,5 +1,5 @@
 import { serialize } from "cookie";
-import { DIRECTIVO_SESSION_EXPIRATION } from "../../constants/expirations";
+import { DIRECTIVOS_SESSION_EXPIRATION } from "../../constants/expirations";
 
 // Función para crear una cookie serializada
 export default function createCookie(name: string, value: string): string {
@@ -9,7 +9,7 @@ export default function createCookie(name: string, value: string): string {
     httpOnly: true,
     secure: true,
     path: "/",
-    sameSite: "strict", 
-    maxAge: DIRECTIVO_SESSION_EXPIRATION, // Convertir horas a segundos
+    sameSite: "strict",
+    maxAge: DIRECTIVOS_SESSION_EXPIRATION, // Convertir horas a segundos
   });
 }
