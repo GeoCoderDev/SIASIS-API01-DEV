@@ -33,10 +33,16 @@ export type ResponseSuccessLogin = ApiResponseBase & {
 };
 
 export type MisDatosDirectivo = Omit<T_Directivos, "Contraseña">;
+
 export type MisDatosProfesorPrimaria = Omit<
   T_Profesores_Primaria,
   "Contraseña"
->;
+> & {
+  Aula: Omit<
+    T_Aulas,
+    "DNI_Profesor_Primaria" | "DNI_Profesor_Secundaria"
+  > | null;
+};
 
 export type MisDatosAuxiliar = Omit<T_Auxiliares, "Contraseña">;
 
@@ -46,7 +52,7 @@ export type MisDatosProfesorSecundaria = Omit<
 >;
 
 export type MisDatosTutor = Omit<T_Profesores_Secundaria, "Contraseña"> & {
-  Aula_Asignada: Pick<T_Aulas, "DNI_Profesor_Primaria">;
+  Aula: Omit<T_Aulas, "DNI_Profesor_Primaria" | "DNI_Profesor_Secundaria">;
 };
 
 //API02

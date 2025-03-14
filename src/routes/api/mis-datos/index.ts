@@ -12,7 +12,11 @@ import {
   ResponsableAuthenticated,
   PersonalAdministrativoAuthenticated,
 } from "../../../interfaces/JWTPayload";
-import { MisDatosSuccessAPI01 } from "../../../interfaces/SiasisAPIs";
+import {
+  MisDatosProfesorPrimaria,
+  MisDatosSuccessAPI01,
+  MisDatosTutor,
+} from "../../../interfaces/SiasisAPIs";
 import isDirectivoAuthenticated from "../../../middlewares/isDirectivoAuthenticated";
 import isProfesorPrimariaAuthenticated from "../../../middlewares/isProfesorPrimariaAuthenticated";
 import isProfesorSecundariaAuthenticated from "../../../middlewares/isProfesorSecundariaAuthenticated";
@@ -98,33 +102,48 @@ router.get(
           break;
 
         case RolesSistema.ProfesorPrimaria:
-          user = await prisma.t_Profesores_Primaria.findUnique({
-            where: {
-              DNI_Profesor_Primaria: (userData as ProfesorPrimariaAuthenticated)
-                .DNI_Profesor_Primaria,
-            },
-            select: {
-              DNI_Profesor_Primaria: true,
-              Nombres: true,
-              Apellidos: true,
-              Genero: true,
-              Nombre_Usuario: true,
-              Estado: true,
-              Correo_Electronico: true,
-              Celular: true,
-              Google_Drive_Foto_ID: true,
-              // Incluir aula para profesores de primaria
-              aulas: {
-                select: {
-                  Id_Aula: true,
-                  Nivel: true,
-                  Grado: true,
-                  Seccion: true,
-                  Color: true,
+          const profesorPrimaria =
+            await prisma.t_Profesores_Primaria.findUnique({
+              where: {
+                DNI_Profesor_Primaria: (
+                  userData as ProfesorPrimariaAuthenticated
+                ).DNI_Profesor_Primaria,
+              },
+              select: {
+                DNI_Profesor_Primaria: true,
+                Nombres: true,
+                Apellidos: true,
+                Genero: true,
+                Nombre_Usuario: true,
+                Estado: true,
+                Correo_Electronico: true,
+                Celular: true,
+                Google_Drive_Foto_ID: true,
+                aulas: {
+                  select: {
+                    Id_Aula: true,
+                    Nivel: true,
+                    Grado: true,
+                    Seccion: true,
+                    Color: true,
+                  },
                 },
               },
-            },
-          });
+            });
+
+          // Modificar la estructura para tener una propiedad Aula simple
+          if (profesorPrimaria) {
+            // Asumiendo que solo tienen un aula asignada
+            const aula =
+              profesorPrimaria.aulas && profesorPrimaria.aulas.length > 0
+                ? profesorPrimaria.aulas[0]
+                : null;
+            user = {
+              ...profesorPrimaria,
+              Aula: aula,
+              aulas: undefined, // Remover la propiedad aulas original
+            } as MisDatosProfesorPrimaria;
+          }
           break;
 
         case RolesSistema.ProfesorSecundaria:
@@ -149,7 +168,7 @@ router.get(
           break;
 
         case RolesSistema.Tutor:
-          user = await prisma.t_Profesores_Secundaria.findUnique({
+          const tutor = await prisma.t_Profesores_Secundaria.findUnique({
             where: {
               DNI_Profesor_Secundaria: (
                 userData as ProfesorTutorSecundariaAuthenticated
@@ -165,7 +184,6 @@ router.get(
               Correo_Electronico: true,
               Celular: true,
               Google_Drive_Foto_ID: true,
-              // Incluir aula para tutores
               aulas: {
                 select: {
                   Id_Aula: true,
@@ -177,6 +195,17 @@ router.get(
               },
             },
           });
+
+          // Modificar la estructura para tener una propiedad Aula simple
+          if (tutor) {
+            // Asumiendo que solo tienen un aula asignada
+            const aula =
+              tutor.aulas && tutor.aulas.length > 0 ? tutor.aulas[0] : null;
+            user = {
+              ...tutor,
+              Aula: aula!,
+            } as MisDatosTutor;
+          }
           break;
 
         case RolesSistema.Responsable:
@@ -218,23 +247,6 @@ router.get(
             },
           });
 
-          // Formatear horarios para personal administrativo
-          // if (user) {
-          //   const formatearHora = (fecha: Date | null) => {
-          //     if (!fecha) return null;
-          //     return new Date(fecha).toLocaleTimeString("es-ES", {
-          //       hour: "2-digit",
-          //       minute: "2-digit",
-          //     });
-          //   };
-
-          //   user.Horario_Laboral_Entrada_Formateada = formatearHora(
-          //     user.Horario_Laboral_Entrada
-          //   );
-          //   user.Horario_Laboral_Salida_Formateada = formatearHora(
-          //     user.Horario_Laboral_Salida
-          //   );
-          // }
           break;
 
         default:
@@ -252,6 +264,9 @@ router.get(
           errorType: AuthErrorTypes.USER_NOT_FOUND,
         });
       }
+
+      //Eliminamos Propiedades innecesarias
+      delete (user as any).aulas;
 
       return res.status(200).json({
         success: true,
