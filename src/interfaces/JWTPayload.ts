@@ -6,7 +6,7 @@ import {
   T_Profesores_Secundaria,
   T_Responsables,
 } from "@prisma/client";
-import { RolesSistema } from "./RolesSistema";
+import { RolesSistema } from "./shared/RolesSistema";
 
 export interface JWTPayload {
   ID_Usuario: string;

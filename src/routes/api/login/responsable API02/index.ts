@@ -2,9 +2,8 @@ import { Request, Response, Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { generateResponsableToken } from "../../../../lib/helpers/generators/JWT/responsableToken";
 import { verifyResponsablePassword } from "../../../../lib/helpers/encriptations/responsable.encriptation";
-import { RolesSistema } from "../../../../interfaces/RolesSistema";
-import { ResponseSuccessLogin } from "../../../../interfaces/SiasisAPIs";
-
+import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
+import { ResponseSuccessLogin } from "../../../../interfaces/shared/SiasisAPIs";
 
 const router = Router();
 const prisma = new PrismaClient();

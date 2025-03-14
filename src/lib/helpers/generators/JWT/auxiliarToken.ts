@@ -1,6 +1,6 @@
 import "dotenv/config";
 import jwt from "jsonwebtoken";
-import { RolesSistema } from "../../../../interfaces/RolesSistema";
+import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
 import { AUXILIARES_SESSION_EXPIRATION } from "../../../../constants/expirations";
 import { JWTPayload } from "../../../../interfaces/JWTPayload";
 

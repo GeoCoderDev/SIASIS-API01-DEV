@@ -2,21 +2,21 @@ import { Request, Response, Router } from "express";
 import { PrismaClient } from "@prisma/client";
 
 import wereObligatoryQueryParamsReceived from "../../../middlewares/wereObligatoryQueryParamsReceived";
-import { RolesSistema } from "../../../interfaces/RolesSistema";
-import { AuthErrorTypes } from "../../../interfaces/errors/AuthErrorTypes";
+import { RolesSistema } from "../../../interfaces/shared/RolesSistema";
+import { AuthErrorTypes } from "../../../interfaces/shared/errors/AuthErrorTypes";
 import {
   AuxiliarAuthenticated,
   DirectivoAuthenticated,
   ProfesorPrimariaAuthenticated,
   ProfesorTutorSecundariaAuthenticated,
-  ResponsableAuthenticated,
+  // ResponsableAuthenticated,
   PersonalAdministrativoAuthenticated,
 } from "../../../interfaces/JWTPayload";
 import {
   MisDatosProfesorPrimaria,
   MisDatosSuccessAPI01,
   MisDatosTutor,
-} from "../../../interfaces/SiasisAPIs";
+} from "../../../interfaces/shared/SiasisAPIs";
 import isDirectivoAuthenticated from "../../../middlewares/isDirectivoAuthenticated";
 import isProfesorPrimariaAuthenticated from "../../../middlewares/isProfesorPrimariaAuthenticated";
 import isProfesorSecundariaAuthenticated from "../../../middlewares/isProfesorSecundariaAuthenticated";
@@ -208,22 +208,22 @@ router.get(
           }
           break;
 
-        case RolesSistema.Responsable:
-          user = await prisma.t_Responsables.findUnique({
-            where: {
-              DNI_Responsable: (userData as ResponsableAuthenticated)
-                .DNI_Responsable,
-            },
-            select: {
-              DNI_Responsable: true,
-              Nombres: true,
-              Apellidos: true,
-              Nombre_Usuario: true,
-              Celular: true,
-              Google_Drive_Foto_ID: true,
-            },
-          });
-          break;
+        // case RolesSistema.Responsable:
+        //   user = await prisma.t_Responsables.findUnique({
+        //     where: {
+        //       DNI_Responsable: (userData as ResponsableAuthenticated)
+        //         .DNI_Responsable,
+        //     },
+        //     select: {
+        //       DNI_Responsable: true,
+        //       Nombres: true,
+        //       Apellidos: true,
+        //       Nombre_Usuario: true,
+        //       Celular: true,
+        //       Google_Drive_Foto_ID: true,
+        //     },
+        //   });
+        //   break;
 
         case RolesSistema.PersonalAdministrativo:
           user = await prisma.t_Personal_Administrativo.findUnique({

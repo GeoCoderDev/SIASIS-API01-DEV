@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import {
   AuthErrorResponse,
   AuthErrorTypes,
-} from "../interfaces/errors/AuthErrorTypes";
+} from "../interfaces/shared/errors/AuthErrorTypes";
 
 // Middleware final que verifica si alguno de los middlewares anteriores
 // ha autenticado correctamente al usuario
