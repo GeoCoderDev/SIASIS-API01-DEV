@@ -3,7 +3,7 @@ import { Router } from "express";
 import loginRouter from "./api/login";
 import directivoRouter from "./api/directivo";
 import misDatosRouter from "./api/mis-datos";
-import { AuthErrorTypes } from "../interfaces/errors/AuthErrorTypes";
+import { AuthErrorTypes } from "../interfaces/shared/errors/AuthErrorTypes";
 import { UserAuthenticatedAPI01 } from "../interfaces/JWTPayload";
 const router = Router();
 

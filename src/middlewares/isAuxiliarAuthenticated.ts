@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { RolesSistema } from "../interfaces/RolesSistema";
+import { RolesSistema } from "../interfaces/shared/RolesSistema";
 import { PrismaClient } from "@prisma/client";
-import { AuthErrorTypes } from "../interfaces/errors/AuthErrorTypes";
+import { AuthErrorTypes } from "../interfaces/shared/errors/AuthErrorTypes";
 import { AuxiliarAuthenticated, JWTPayload } from "../interfaces/JWTPayload";
 import { verificarBloqueoRol } from "../lib/helpers/verificators/verificarBloqueoRol";
 
@@ -16,7 +16,7 @@ const isAuxiliarAuthenticated = async (
 ) => {
   try {
     // Si ya está autenticado con algún rol, continuar
-    if (req.isAuthenticated ) {
+    if (req.isAuthenticated) {
       return next();
     }
 

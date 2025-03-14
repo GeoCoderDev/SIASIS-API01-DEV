@@ -2,9 +2,9 @@ import { Request, Response, Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { generatePersonalAdministrativoToken } from "../../../../lib/helpers/generators/JWT/personalAdministrativoToken";
 import { verifyPersonalAdministrativoPassword } from "../../../../lib/helpers/encriptations/personalAdministrativo.encriptation";
-import { RolesSistema } from "../../../../interfaces/RolesSistema";
-import { ResponseSuccessLogin } from "../../../../interfaces/SiasisAPIs";
-import { Genero } from "../../../../interfaces/Genero";
+import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
+import { ResponseSuccessLogin } from "../../../../interfaces/shared/SiasisAPIs";
+import { Genero } from "../../../../interfaces/shared/Genero";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -31,23 +31,24 @@ router.post("/", (async (req: Request, res: Response) => {
     }
 
     // Buscar el personal administrativo por nombre de usuario
-    const personalAdministrativo = await prisma.t_Personal_Administrativo.findUnique({
-      where: {
-        Nombre_Usuario: Nombre_Usuario,
-      },
-      select: {
-        DNI_Personal_Administrativo: true,
-        Nombre_Usuario: true,
-        Contraseña: true,
-        Nombres: true,
-        Apellidos: true,
-        Google_Drive_Foto_ID: true,
-        Genero: true,
-        Estado: true,
-        Horario_Laboral_Entrada: true,
-        Horario_Laboral_Salida: true
-      },
-    });
+    const personalAdministrativo =
+      await prisma.t_Personal_Administrativo.findUnique({
+        where: {
+          Nombre_Usuario: Nombre_Usuario,
+        },
+        select: {
+          DNI_Personal_Administrativo: true,
+          Nombre_Usuario: true,
+          Contraseña: true,
+          Nombres: true,
+          Apellidos: true,
+          Google_Drive_Foto_ID: true,
+          Genero: true,
+          Estado: true,
+          Horario_Laboral_Entrada: true,
+          Horario_Laboral_Salida: true,
+        },
+      });
 
     // Si no existe el personal administrativo o las credenciales son incorrectas, retornar error
     if (!personalAdministrativo) {

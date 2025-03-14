@@ -69,5 +69,6 @@ export type MisDatosSuccessAPI01 =
   | MisDatosAuxiliar
   | MisDatosProfesorSecundaria
   | MisDatosTutor
-  | MisDatosResponsable
   | MisDatosPersonalAdministrativo;
+
+export type MisDatosSuccessAPI02 = MisDatosResponsable;

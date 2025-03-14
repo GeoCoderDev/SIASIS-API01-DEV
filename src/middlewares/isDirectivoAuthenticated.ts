@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { RolesSistema } from "../interfaces/RolesSistema";
+import { RolesSistema } from "../interfaces/shared/RolesSistema";
 import { PrismaClient } from "@prisma/client";
-import { AuthErrorTypes } from "../interfaces/errors/AuthErrorTypes";
+import { AuthErrorTypes } from "../interfaces/shared/errors/AuthErrorTypes";
 import { verificarBloqueoRol } from "../lib/helpers/verificators/verificarBloqueoRol";
 import { DirectivoAuthenticated, JWTPayload } from "../interfaces/JWTPayload";
 

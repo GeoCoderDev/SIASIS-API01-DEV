@@ -4,14 +4,15 @@ import { PrismaClient } from "@prisma/client";
 
 import { generateDirectivoToken } from "../../../../lib/helpers/generators/JWT/directivoToken";
 import { verifyDirectivoPassword } from "../../../../lib/helpers/encriptations/directivo.encriptation";
-import { RolesSistema } from "../../../../interfaces/RolesSistema";
-import { LoginBody, ResponseSuccessLogin } from "../../../../interfaces/SiasisAPIs";
-import { Genero } from "../../../../interfaces/Genero";
+import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
+import {
+  LoginBody,
+  ResponseSuccessLogin,
+} from "../../../../interfaces/shared/SiasisAPIs";
+import { Genero } from "../../../../interfaces/shared/Genero";
 
 const router = Router();
 const prisma = new PrismaClient();
-
-
 
 router.get("/", (async (req: Request, res: Response) => {
   return res.json({ message: "Login Directivo" });

@@ -4,11 +4,11 @@ import { PrismaClient } from "@prisma/client";
 import {
   LoginBody,
   ResponseSuccessLogin,
-} from "../../../../interfaces/SiasisAPIs";
+} from "../../../../interfaces/shared/SiasisAPIs";
 import { verifyProfesorPrimariaPassword } from "../../../../lib/helpers/encriptations/profesorPrimaria.encriptation";
 import { generateProfesorPrimariaToken } from "../../../../lib/helpers/generators/JWT/profesorPrimariaToken";
-import { RolesSistema } from "../../../../interfaces/RolesSistema";
-import { Genero } from "../../../../interfaces/Genero";
+import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
+import { Genero } from "../../../../interfaces/shared/Genero";
 
 const router = Router();
 const prisma = new PrismaClient();

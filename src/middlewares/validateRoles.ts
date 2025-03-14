@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { RolesSistema } from "../interfaces/RolesSistema";
+import { RolesSistema } from "../interfaces/shared/RolesSistema";
 
 /**
  * Genera un middleware que valida si el usuario tiene al menos uno de los roles especificados

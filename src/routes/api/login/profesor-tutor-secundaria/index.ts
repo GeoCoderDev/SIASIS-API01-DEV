@@ -2,9 +2,9 @@ import { Request, Response, Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { generateProfesorSecundariaToken } from "../../../../lib/helpers/generators/JWT/profesorSecundariaToken";
 
-import { RolesSistema } from "../../../../interfaces/RolesSistema";
-import { ResponseSuccessLogin } from "../../../../interfaces/SiasisAPIs";
-import { Genero } from "../../../../interfaces/Genero";
+import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
+import { ResponseSuccessLogin } from "../../../../interfaces/shared/SiasisAPIs";
+import { Genero } from "../../../../interfaces/shared/Genero";
 import { generateTutorToken } from "../../../../lib/helpers/generators/JWT/tutorToken";
 import { verifyProfesorTutorSecundariaPassword } from "../../../../lib/helpers/encriptations/profesorTutotSecundaria.encriptation";
 

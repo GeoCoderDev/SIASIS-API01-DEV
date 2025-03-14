@@ -1,9 +1,9 @@
 // verificarBloqueoRol.ts
 import { Request, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
-import { RolesSistema } from "../../../interfaces/RolesSistema";
+import { RolesSistema } from "../../../interfaces/shared/RolesSistema";
 import { RolesTexto } from "../../../../assets/RolesTextosEspañol";
-import { AuthErrorTypes } from "../../../interfaces/errors/AuthErrorTypes";
+import { AuthErrorTypes } from "../../../interfaces/shared/errors/AuthErrorTypes";
 
 const prisma = new PrismaClient();
 
