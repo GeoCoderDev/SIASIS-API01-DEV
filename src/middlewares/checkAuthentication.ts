@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import {
-  AuthErrorResponse,
-  AuthErrorTypes,
-} from "../interfaces/shared/errors/AuthErrorTypes";
+import { TokenErrorTypes } from "../interfaces/shared/errors/TokenErrorTypes";
+import { UserErrorTypes } from "../interfaces/shared/errors/UserErrorTypes";
+import { PermissionErrorTypes } from "../interfaces/shared/errors/PermissionErrorTypes";
+import { SystemErrorTypes } from "../interfaces/shared/errors/SystemErrorTypes";
+import { ErrorResponseAPIBase } from "../interfaces/shared/apis/types";
 
 // Middleware final que verifica si alguno de los middlewares anteriores
 // ha autenticado correctamente al usuario
@@ -17,7 +18,7 @@ const checkAuthentication = (
 
   // Si no está autenticado, verificar si hay un error específico
   if (req.authError) {
-    const errorResponse: AuthErrorResponse = {
+    const errorResponse: ErrorResponseAPIBase = {
       success: false,
       message: req.authError.message,
       errorType: req.authError.type,
@@ -32,23 +33,23 @@ const checkAuthentication = (
     let statusCode = 401; // Unauthorized por defecto
 
     switch (req.authError.type) {
-      case AuthErrorTypes.TOKEN_EXPIRED:
-      case AuthErrorTypes.TOKEN_INVALID_SIGNATURE:
-      case AuthErrorTypes.TOKEN_MALFORMED:
-      case AuthErrorTypes.TOKEN_MISSING:
-      case AuthErrorTypes.TOKEN_INVALID_FORMAT:
+      case TokenErrorTypes.TOKEN_EXPIRED:
+      case TokenErrorTypes.TOKEN_INVALID_SIGNATURE:
+      case TokenErrorTypes.TOKEN_MALFORMED:
+      case TokenErrorTypes.TOKEN_MISSING:
+      case TokenErrorTypes.TOKEN_INVALID_FORMAT:
         statusCode = 401; // Unauthorized
         break;
 
-      case AuthErrorTypes.ROLE_BLOCKED:
-      case AuthErrorTypes.USER_INACTIVE:
-      case AuthErrorTypes.TOKEN_WRONG_ROLE:
-      case AuthErrorTypes.INSUFFICIENT_PERMISSIONS:
+      case PermissionErrorTypes.ROLE_BLOCKED:
+      case UserErrorTypes.USER_INACTIVE:
+      case TokenErrorTypes.TOKEN_WRONG_ROLE:
+      case PermissionErrorTypes.INSUFFICIENT_PERMISSIONS:
         statusCode = 403; // Forbidden
         break;
 
-      case AuthErrorTypes.DATABASE_ERROR:
-      case AuthErrorTypes.UNKNOWN_ERROR:
+      case SystemErrorTypes.DATABASE_ERROR:
+      case SystemErrorTypes.UNKNOWN_ERROR:
         statusCode = 500; // Internal Server Error
         break;
     }
@@ -61,7 +62,7 @@ const checkAuthentication = (
     success: false,
     message:
       "Acceso denegado. No tiene los permisos necesarios para acceder a este recurso.",
-    errorType: AuthErrorTypes.INSUFFICIENT_PERMISSIONS,
+    errorType: PermissionErrorTypes.INSUFFICIENT_PERMISSIONS,
   });
 };
 
