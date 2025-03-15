@@ -2,9 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { RolesSistema } from "../interfaces/shared/RolesSistema";
 import { PrismaClient } from "@prisma/client";
-import { AuthErrorTypes } from "../interfaces/shared/errors/AuthErrorTypes";
 import { AuxiliarAuthenticated, JWTPayload } from "../interfaces/JWTPayload";
 import { verificarBloqueoRol } from "../lib/helpers/verificators/verificarBloqueoRol";
+import { TokenErrorTypes } from "../interfaces/shared/errors/TokenErrorTypes";
+import { UserErrorTypes } from "../interfaces/shared/errors/UserErrorTypes";
+import { SystemErrorTypes } from "../interfaces/shared/errors/SystemErrorTypes";
+
 
 const prisma = new PrismaClient();
 
@@ -26,7 +29,7 @@ const isAuxiliarAuthenticated = async (
     if (!authHeader) {
       // Almacenar el error en req para que checkAuthentication pueda usarlo
       req.authError = {
-        type: AuthErrorTypes.TOKEN_MISSING,
+        type: TokenErrorTypes.TOKEN_MISSING,
         message: "No se ha proporcionado un token de autenticación",
       };
       return next();
@@ -36,7 +39,7 @@ const isAuxiliarAuthenticated = async (
     const parts = authHeader.split(" ");
     if (parts.length !== 2 || parts[0] !== "Bearer") {
       req.authError = {
-        type: AuthErrorTypes.TOKEN_INVALID_FORMAT,
+        type: TokenErrorTypes.TOKEN_INVALID_FORMAT,
         message: "Formato de token no válido",
       };
       return next();
@@ -52,7 +55,7 @@ const isAuxiliarAuthenticated = async (
       // Verificar que el rol sea de Auxiliar
       if (decodedPayload.Rol !== RolesSistema.Auxiliar) {
         req.authError = {
-          type: AuthErrorTypes.TOKEN_WRONG_ROLE,
+          type: TokenErrorTypes.TOKEN_WRONG_ROLE,
           message: "El token no corresponde a un usuario auxiliar",
         };
         return next();
@@ -82,14 +85,14 @@ const isAuxiliarAuthenticated = async (
 
         if (!auxiliar || !auxiliar.Estado) {
           req.authError = {
-            type: AuthErrorTypes.USER_INACTIVE,
+            type: UserErrorTypes.USER_INACTIVE,
             message: "La cuenta de auxiliar está inactiva o no existe",
           };
           return next();
         }
       } catch (dbError) {
         req.authError = {
-          type: AuthErrorTypes.DATABASE_ERROR,
+          type: SystemErrorTypes.DATABASE_ERROR,
           message: "Error al verificar el estado del usuario o rol",
           details: dbError,
         };
@@ -112,7 +115,7 @@ const isAuxiliarAuthenticated = async (
       // Capturar errores específicos de JWT
       if (jwtError.name === "TokenExpiredError") {
         req.authError = {
-          type: AuthErrorTypes.TOKEN_EXPIRED,
+          type: TokenErrorTypes.TOKEN_EXPIRED,
           message: "El token ha expirado",
           details: {
             expiredAt: jwtError.expiredAt,
@@ -121,19 +124,19 @@ const isAuxiliarAuthenticated = async (
       } else if (jwtError.name === "JsonWebTokenError") {
         if (jwtError.message === "invalid signature") {
           req.authError = {
-            type: AuthErrorTypes.TOKEN_INVALID_SIGNATURE,
+            type: TokenErrorTypes.TOKEN_INVALID_SIGNATURE,
             message: "La firma del token es inválida AUXILIAR",
           };
         } else {
           req.authError = {
-            type: AuthErrorTypes.TOKEN_MALFORMED,
+            type: TokenErrorTypes.TOKEN_MALFORMED,
             message: "El token tiene un formato incorrecto",
             details: jwtError.message,
           };
         }
       } else {
         req.authError = {
-          type: AuthErrorTypes.UNKNOWN_ERROR,
+          type: SystemErrorTypes.UNKNOWN_ERROR,
           message: "Error desconocido al verificar el token",
           details: jwtError,
         };
@@ -144,7 +147,7 @@ const isAuxiliarAuthenticated = async (
   } catch (error) {
     console.error("Error en middleware de auxiliar:", error);
     req.authError = {
-      type: AuthErrorTypes.UNKNOWN_ERROR,
+      type: SystemErrorTypes.UNKNOWN_ERROR,
       message: "Error desconocido en el proceso de autenticación",
       details: error,
     };

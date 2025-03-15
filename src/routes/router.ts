@@ -3,8 +3,8 @@ import { Router } from "express";
 import loginRouter from "./api/login";
 import directivoRouter from "./api/directivo";
 import misDatosRouter from "./api/mis-datos";
-import { AuthErrorTypes } from "../interfaces/shared/errors/AuthErrorTypes";
 import { UserAuthenticatedAPI01 } from "../interfaces/JWTPayload";
+import AllErrorTypes from "../interfaces/shared/errors";
 const router = Router();
 
 // Extender la interfaz Request de Express
@@ -15,7 +15,7 @@ declare global {
       isAuthenticated?: boolean;
       userRole?: string;
       authError?: {
-        type: AuthErrorTypes;
+        type: AllErrorTypes;
         message: string;
         details?: any;
       };

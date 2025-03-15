@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { generateResponsableToken } from "../../../../lib/helpers/generators/JWT/responsableToken";
 import { verifyResponsablePassword } from "../../../../lib/helpers/encriptations/responsable.encriptation";
 import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
-import { ResponseSuccessLogin } from "../../../../interfaces/shared/SiasisAPIs";
+import { ResponseSuccessLogin } from "../../../../interfaces/shared/apis/shared/login/types";
 
 const router = Router();
 const prisma = new PrismaClient();

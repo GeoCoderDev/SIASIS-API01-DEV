@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { AuthErrorTypes } from "../../../interfaces/shared/errors/AuthErrorTypes";
+import { AuthErrorTypes } from "../../../interfaces/shared/errors/SystemErrorTypes";
 
 export interface ValidationRules {
   [param: string]: {

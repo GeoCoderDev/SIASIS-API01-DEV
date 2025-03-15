@@ -3,8 +3,8 @@ import { PrismaClient } from "@prisma/client";
 import { generateAuxiliarToken } from "../../../../lib/helpers/generators/JWT/auxiliarToken";
 import { verifyAuxiliarPassword } from "../../../../lib/helpers/encriptations/auxiliar.encriptation";
 import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
-import { ResponseSuccessLogin } from "../../../../interfaces/shared/SiasisAPIs";
 import { Genero } from "../../../../interfaces/shared/Genero";
+import { ResponseSuccessLogin } from "../../../../interfaces/shared/apis/shared/login/types";
 
 const router = Router();
 const prisma = new PrismaClient();

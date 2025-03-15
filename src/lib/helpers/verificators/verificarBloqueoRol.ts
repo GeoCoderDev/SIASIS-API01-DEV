@@ -3,7 +3,8 @@ import { Request, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
 import { RolesSistema } from "../../../interfaces/shared/RolesSistema";
 import { RolesTexto } from "../../../../assets/RolesTextosEspañol";
-import { AuthErrorTypes } from "../../../interfaces/shared/errors/AuthErrorTypes";
+import { PermissionErrorTypes } from "../../../interfaces/shared/errors/PermissionErrorTypes";
+import { SystemErrorTypes } from "../../../interfaces/shared/errors/SystemErrorTypes";
 
 const prisma = new PrismaClient();
 
@@ -52,7 +53,7 @@ export async function verificarBloqueoRol(
       const nombreRolPlural = RolesTexto[rol].plural.toLowerCase();
 
       req.authError = {
-        type: AuthErrorTypes.ROLE_BLOCKED,
+        type: PermissionErrorTypes.ROLE_BLOCKED,
         message: bloqueo.Bloqueo_Total
           ? `Acceso permanentemente bloqueado para ${nombreRolPlural}. Contacte al administrador del sistema.`
           : `Acceso temporalmente bloqueado para ${nombreRolPlural}. Intente nuevamente más tarde.`,
@@ -83,7 +84,7 @@ export async function verificarBloqueoRol(
     return false;
   } catch (error) {
     req.authError = {
-      type: AuthErrorTypes.DATABASE_ERROR,
+      type: SystemErrorTypes.DATABASE_ERROR,
       message: "Error al verificar el estado del rol",
       details: error,
     };

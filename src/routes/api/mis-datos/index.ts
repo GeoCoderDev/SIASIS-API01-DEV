@@ -3,7 +3,6 @@ import { PrismaClient } from "@prisma/client";
 
 import wereObligatoryQueryParamsReceived from "../../../middlewares/wereObligatoryQueryParamsReceived";
 import { RolesSistema } from "../../../interfaces/shared/RolesSistema";
-import { AuthErrorTypes } from "../../../interfaces/shared/errors/AuthErrorTypes";
 import {
   AuxiliarAuthenticated,
   DirectivoAuthenticated,
@@ -12,11 +11,7 @@ import {
   // ResponsableAuthenticated,
   PersonalAdministrativoAuthenticated,
 } from "../../../interfaces/JWTPayload";
-import {
-  MisDatosProfesorPrimaria,
-  MisDatosSuccessAPI01,
-  MisDatosTutor,
-} from "../../../interfaces/shared/SiasisAPIs";
+
 import isDirectivoAuthenticated from "../../../middlewares/isDirectivoAuthenticated";
 import isProfesorPrimariaAuthenticated from "../../../middlewares/isProfesorPrimariaAuthenticated";
 import isProfesorSecundariaAuthenticated from "../../../middlewares/isProfesorSecundariaAuthenticated";
@@ -26,6 +21,17 @@ import isPersonalAdministrativoAuthenticated from "../../../middlewares/isPerson
 import isResponsableAuthenticated from "../../../middlewares/isResponsableAuthenticated";
 import checkAuthentication from "../../../middlewares/checkAuthentication";
 import { RolesTexto } from "../../../../assets/RolesTextosEspañol";
+import { TokenErrorTypes } from "../../../interfaces/shared/errors/TokenErrorTypes";
+import { RequestErrorTypes } from "../../../interfaces/shared/errors/RequestErrorTypes";
+import {
+  MisDatosErrorResponseAPI01,
+  MisDatosProfesorPrimaria,
+  MisDatosSuccessAPI01Data,
+  MisDatosSuccessResponseAPI01,
+  MisDatosTutor,
+} from "../../../interfaces/shared/apis/api01/mis-datos/types";
+import { UserErrorTypes } from "../../../interfaces/shared/errors/UserErrorTypes";
+import { SystemErrorTypes } from "../../../interfaces/shared/errors/SystemErrorTypes";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -48,11 +54,11 @@ router.get(
       const userData = req.user!;
 
       // Buscar el usuario correspondiente según el rol
-      let user: MisDatosSuccessAPI01 | null = null;
+      let user: MisDatosSuccessAPI01Data | null = null;
 
       if (req.userRole !== Rol) {
         req.authError = {
-          type: AuthErrorTypes.TOKEN_WRONG_ROLE,
+          type: TokenErrorTypes.TOKEN_WRONG_ROLE,
           message: `El token no corresponde a un ${RolesTexto[Rol].singular}`,
         };
         return res.status(403).json({
@@ -253,7 +259,7 @@ router.get(
           return res.status(400).json({
             success: false,
             message: "Rol no soportado",
-            errorType: AuthErrorTypes.INVALID_PARAMETERS,
+            errorType: RequestErrorTypes.INVALID_PARAMETERS,
           });
       }
 
@@ -261,7 +267,7 @@ router.get(
         return res.status(404).json({
           success: false,
           message: "Usuario no encontrado",
-          errorType: AuthErrorTypes.USER_NOT_FOUND,
+          errorType: UserErrorTypes.USER_NOT_FOUND,
         });
       }
 
@@ -271,15 +277,15 @@ router.get(
       return res.status(200).json({
         success: true,
         data: user,
-      });
+      } as MisDatosSuccessResponseAPI01);
     } catch (error) {
       console.error("Error al obtener datos del usuario:", error);
       return res.status(500).json({
         success: false,
         message: "Error al obtener los datos del usuario",
-        errorType: AuthErrorTypes.UNKNOWN_ERROR,
+        errorType: SystemErrorTypes.UNKNOWN_ERROR,
         details: error,
-      });
+      } as MisDatosErrorResponseAPI01);
     }
   }) as any
 );

@@ -5,11 +5,10 @@ import { PrismaClient } from "@prisma/client";
 import { generateDirectivoToken } from "../../../../lib/helpers/generators/JWT/directivoToken";
 import { verifyDirectivoPassword } from "../../../../lib/helpers/encriptations/directivo.encriptation";
 import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
-import {
-  LoginBody,
-  ResponseSuccessLogin,
-} from "../../../../interfaces/shared/SiasisAPIs";
+
 import { Genero } from "../../../../interfaces/shared/Genero";
+import { LoginBody } from "../auxiliar";
+import { ResponseSuccessLogin } from "../../../../interfaces/shared/apis/shared/login/types";
 
 const router = Router();
 const prisma = new PrismaClient();
