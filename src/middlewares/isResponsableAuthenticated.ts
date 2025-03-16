@@ -18,7 +18,7 @@ const isResponsableAuthenticated = async (
 ) => {
   try {
     // Si ya está autenticado con algún rol, continuar
-    if (req.isAuthenticated) {
+    if (req.isAuthenticated || req.authError) {
       return next();
     }
 

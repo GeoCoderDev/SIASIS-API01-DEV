@@ -22,9 +22,10 @@ const isTutorAuthenticated = async (
 ) => {
   try {
     // Si ya está autenticado con algún rol, continuar
-    if (req.isAuthenticated) {
+    if (req.isAuthenticated || req.authError) {
       return next();
     }
+
     // Obtener el token del encabezado de autorización
     const authHeader = req.headers.authorization;
 

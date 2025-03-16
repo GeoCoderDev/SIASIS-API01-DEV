@@ -18,7 +18,7 @@ const isDirectivoAuthenticated = async (
 ) => {
   try {
     // Si ya está autenticado con algún rol, continuar
-    if (req.isAuthenticated) {
+    if (req.isAuthenticated || req.authError) {
       return next();
     }
 
@@ -64,7 +64,7 @@ const isDirectivoAuthenticated = async (
         // Verificar si el rol está bloqueado
         const bloqueado = await verificarBloqueoRol(
           req,
-          RolesSistema.Auxiliar,
+          RolesSistema.Directivo,
           next
         );
 
