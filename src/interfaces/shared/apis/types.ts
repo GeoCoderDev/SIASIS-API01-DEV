@@ -1,4 +1,5 @@
 import AllErrorTypes from "./errors";
+import { ErrorDetails } from "./errors/details";
 
 export interface MessageProperty {
   message: string;
@@ -20,6 +21,6 @@ export interface SuccessResponseAPIBase extends ApiResponseBase {
 export interface ErrorResponseAPIBase extends ApiResponseBase {
   message: string;
   success: false;
-  details?: any;
+  details?: ErrorDetails;
   errorType?: AllErrorTypes;
 }
