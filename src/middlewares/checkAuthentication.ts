@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { TokenErrorTypes } from "../interfaces/shared/errors/TokenErrorTypes";
-import { UserErrorTypes } from "../interfaces/shared/errors/UserErrorTypes";
-import { PermissionErrorTypes } from "../interfaces/shared/errors/PermissionErrorTypes";
-import { SystemErrorTypes } from "../interfaces/shared/errors/SystemErrorTypes";
+import { TokenErrorTypes } from "../interfaces/shared/apis/errors/TokenErrorTypes";
+import { UserErrorTypes } from "../interfaces/shared/apis/errors/UserErrorTypes";
+import { PermissionErrorTypes } from "../interfaces/shared/apis/errors/PermissionErrorTypes";
+import { SystemErrorTypes } from "../interfaces/shared/apis/errors/SystemErrorTypes";
 import { ErrorResponseAPIBase } from "../interfaces/shared/apis/types";
 
 // Middleware final que verifica si alguno de los middlewares anteriores
@@ -17,7 +17,7 @@ const checkAuthentication = (
   }
 
   // Si no está autenticado, verificar si hay un error específico
-  if (!req.isAuthenticated && req.authError) {
+  if (req.authError) {
     const errorResponse: ErrorResponseAPIBase = {
       success: false,
       message: req.authError.message,

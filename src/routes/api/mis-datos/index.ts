@@ -21,8 +21,8 @@ import isPersonalAdministrativoAuthenticated from "../../../middlewares/isPerson
 import isResponsableAuthenticated from "../../../middlewares/isResponsableAuthenticated";
 import checkAuthentication from "../../../middlewares/checkAuthentication";
 import { RolesTexto } from "../../../../assets/RolesTextosEspañol";
-import { TokenErrorTypes } from "../../../interfaces/shared/errors/TokenErrorTypes";
-import { RequestErrorTypes } from "../../../interfaces/shared/errors/RequestErrorTypes";
+import { TokenErrorTypes } from "../../../interfaces/shared/apis/errors/TokenErrorTypes";
+import { RequestErrorTypes } from "../../../interfaces/shared/apis/errors/RequestErrorTypes";
 import {
   MisDatosErrorResponseAPI01,
   MisDatosProfesorPrimaria,
@@ -30,8 +30,8 @@ import {
   MisDatosSuccessResponseAPI01,
   MisDatosTutor,
 } from "../../../interfaces/shared/apis/api01/mis-datos/types";
-import { UserErrorTypes } from "../../../interfaces/shared/errors/UserErrorTypes";
-import { SystemErrorTypes } from "../../../interfaces/shared/errors/SystemErrorTypes";
+import { UserErrorTypes } from "../../../interfaces/shared/apis/errors/UserErrorTypes";
+import { SystemErrorTypes } from "../../../interfaces/shared/apis/errors/SystemErrorTypes";
 
 const router = Router();
 const prisma = new PrismaClient();

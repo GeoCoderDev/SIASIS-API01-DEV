@@ -4,9 +4,10 @@ import { RolesSistema } from "../interfaces/shared/RolesSistema";
 import { PrismaClient } from "@prisma/client";
 import { AuxiliarAuthenticated, JWTPayload } from "../interfaces/JWTPayload";
 import { verificarBloqueoRol } from "../lib/helpers/verificators/verificarBloqueoRol";
-import { TokenErrorTypes } from "../interfaces/shared/errors/TokenErrorTypes";
-import { UserErrorTypes } from "../interfaces/shared/errors/UserErrorTypes";
-import { SystemErrorTypes } from "../interfaces/shared/errors/SystemErrorTypes";
+import { TokenErrorTypes } from "../interfaces/shared/apis/errors/TokenErrorTypes";
+import { UserErrorTypes } from "../interfaces/shared/apis/errors/UserErrorTypes";
+import { SystemErrorTypes } from "../interfaces/shared/apis/errors/SystemErrorTypes";
+import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/apis/details";
 
 const prisma = new PrismaClient();
 
@@ -17,8 +18,13 @@ const isAuxiliarAuthenticated = async (
   next: NextFunction
 ) => {
   try {
-    // Si ya está autenticado con algún rol, continuar
+    // Si ya está autenticado con algún rol o ya hay un error, continuar
     if (req.isAuthenticated || req.authError) {
+      return next();
+    }
+
+    // Verificar si se envió el parámetro de Rol y si no coincide con Auxiliar, pasar al siguiente
+    if (req.query.Rol && req.query.Rol !== RolesSistema.Auxiliar) {
       return next();
     }
 
@@ -26,32 +32,52 @@ const isAuxiliarAuthenticated = async (
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      // Almacenar el error en req para que checkAuthentication pueda usarlo
-      req.authError = {
-        type: TokenErrorTypes.TOKEN_MISSING,
-        message: "No se ha proporcionado un token de autenticación",
-      };
+      // Solo establecer error si estamos seguros que este es el rol correcto (por query param)
+      if (req.query.Rol === RolesSistema.Auxiliar) {
+        req.authError = {
+          type: TokenErrorTypes.TOKEN_MISSING,
+          message: "No se ha proporcionado un token de autenticación",
+        };
+      }
       return next();
     }
 
     // Verificar el formato "Bearer <token>"
     const parts = authHeader.split(" ");
     if (parts.length !== 2 || parts[0] !== "Bearer") {
-      req.authError = {
-        type: TokenErrorTypes.TOKEN_INVALID_FORMAT,
-        message: "Formato de token no válido",
-      };
+      // Solo establecer error si estamos seguros que este es el rol correcto (por query param)
+      if (req.query.Rol === RolesSistema.Auxiliar) {
+        req.authError = {
+          type: TokenErrorTypes.TOKEN_INVALID_FORMAT,
+          message: "Formato de token no válido",
+        };
+      }
       return next();
     }
 
     const token = parts[1];
     const jwtSecretKey = process.env.JWT_KEY_AUXILIARES!;
 
+    // Si no tenemos el parámetro Rol, intentar determinar si este token es para este rol
+    if (!req.query.Rol) {
+      try {
+        // Intentar decodificar para ver si el token es para este rol
+        const decoded = jwt.decode(token) as JWTPayload;
+        if (!decoded || decoded.Rol !== RolesSistema.Auxiliar) {
+          return next(); // No es para este rol, continuar al siguiente middleware
+        }
+      } catch (error) {
+        // Error al decodificar, probablemente no es para este rol
+        return next();
+      }
+    }
+
     try {
-      // Verificar el token
+      // A partir de aquí, sabemos que el token debería ser para un Auxiliar
+      // Proceder con la verificación completa
       const decodedPayload = jwt.verify(token, jwtSecretKey) as JWTPayload;
 
-      // Verificar que el rol sea de Auxiliar
+      // Verificar que el rol sea de Auxiliar (doble verificación)
       if (decodedPayload.Rol !== RolesSistema.Auxiliar) {
         req.authError = {
           type: TokenErrorTypes.TOKEN_WRONG_ROLE,
@@ -93,7 +119,7 @@ const isAuxiliarAuthenticated = async (
         req.authError = {
           type: SystemErrorTypes.DATABASE_ERROR,
           message: "Error al verificar el estado del usuario o rol",
-          details: dbError,
+          details: dbError as ErrorObjectGeneric,
         };
         return next();
       }
@@ -111,6 +137,8 @@ const isAuxiliarAuthenticated = async (
       // Si todo está bien, continuar
       next();
     } catch (jwtError: any) {
+      // Ahora sabemos que el token era para este rol pero falló la verificación
+      
       // Capturar errores específicos de JWT
       if (jwtError.name === "TokenExpiredError") {
         req.authError = {
@@ -124,7 +152,7 @@ const isAuxiliarAuthenticated = async (
         if (jwtError.message === "invalid signature") {
           req.authError = {
             type: TokenErrorTypes.TOKEN_INVALID_SIGNATURE,
-            message: "La firma del token es inválida AUXILIAR",
+            message: "La firma del token es inválida para auxiliar",
           };
         } else {
           req.authError = {
@@ -148,7 +176,7 @@ const isAuxiliarAuthenticated = async (
     req.authError = {
       type: SystemErrorTypes.UNKNOWN_ERROR,
       message: "Error desconocido en el proceso de autenticación",
-      details: error,
+      details: error as ErrorObjectGeneric,
     };
     next();
   }

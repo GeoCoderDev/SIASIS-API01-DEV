@@ -1,4 +1,4 @@
-import AllErrorTypes from "../errors";
+import AllErrorTypes from "./errors";
 
 /**
  * Base para todas las respuestas de la API

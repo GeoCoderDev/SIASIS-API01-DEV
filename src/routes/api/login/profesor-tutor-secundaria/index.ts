@@ -1,12 +1,12 @@
 import { Request, Response, Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { generateProfesorSecundariaToken } from "../../../../lib/helpers/generators/JWT/profesorSecundariaToken";
-
 import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
 import { Genero } from "../../../../interfaces/shared/Genero";
 import { generateTutorToken } from "../../../../lib/helpers/generators/JWT/tutorToken";
 import { verifyProfesorTutorSecundariaPassword } from "../../../../lib/helpers/encriptations/profesorTutotSecundaria.encriptation";
 import { ResponseSuccessLogin } from "../../../../interfaces/shared/apis/shared/login/types";
+import { AuthBlockedDetails } from "../../../../interfaces/shared/apis/errors/apis/details/AuthBloquedDetails";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -28,8 +28,236 @@ router.post("/", (async (req: Request, res: Response) => {
     // Validar que se proporcionen ambos campos
     if (!Nombre_Usuario || !Contraseña) {
       return res.status(400).json({
+        success: false,
         message: "El nombre de usuario y la contraseña son obligatorios",
       });
+    }
+
+    // Este endpoint se usa tanto para profesores de secundaria como para tutores
+    // Verificamos bloqueos para ambos roles antes de continuar
+    try {
+      const tiempoActual = Math.floor(Date.now() / 1000); // Timestamp Unix actual en segundos
+
+      // Verificar bloqueo para Profesor Secundaria (sin filtro de timestamp)
+      const bloqueoProfesorSecundaria = await prisma.t_Bloqueo_Roles.findFirst({
+        where: {
+          Rol: RolesSistema.ProfesorSecundaria,
+          Bloqueo_Total: true,
+        },
+      });
+
+      // Verificar bloqueo para Tutor (sin filtro de timestamp)
+      const bloqueoTutor = await prisma.t_Bloqueo_Roles.findFirst({
+        where: {
+          Rol: RolesSistema.Tutor,
+          Bloqueo_Total: true,
+        },
+      });
+
+      // Si ambos roles están bloqueados, informamos sobre el que tiene mayor tiempo de bloqueo
+      // o indicamos que es un bloqueo permanente si ambos lo son
+      if (bloqueoProfesorSecundaria && bloqueoTutor) {
+        const timestampProfesorSecundaria = Number(
+          bloqueoProfesorSecundaria.Timestamp_Desbloqueo
+        );
+        const timestampTutor = Number(bloqueoTutor.Timestamp_Desbloqueo);
+
+        // Determinar cuál de los dos tiene un timestamp mayor o si ambos son permanentes
+        const esProfesorPermanente =
+          timestampProfesorSecundaria <= 0 ||
+          timestampProfesorSecundaria <= tiempoActual;
+        const esTutorPermanente =
+          timestampTutor <= 0 || timestampTutor <= tiempoActual;
+
+        // Si ambos son permanentes
+        if (esProfesorPermanente && esTutorPermanente) {
+          const errorDetails: AuthBlockedDetails = {
+            tiempoActualUTC: tiempoActual,
+            timestampDesbloqueoUTC: 0,
+            tiempoRestante: "Permanente",
+            fechaDesbloqueo: "No definida",
+            esBloqueoPermanente: true,
+          };
+
+          return res.status(403).json({
+            success: false,
+            message:
+              "El acceso a profesores y tutores de secundaria está permanentemente bloqueado",
+            details: errorDetails,
+          });
+        }
+
+        // Si solo uno es permanente, priorizamos ese
+        if (esProfesorPermanente) {
+          const errorDetails: AuthBlockedDetails = {
+            tiempoActualUTC: tiempoActual,
+            timestampDesbloqueoUTC: timestampProfesorSecundaria,
+            tiempoRestante: "Permanente",
+            fechaDesbloqueo: "No definida",
+            esBloqueoPermanente: true,
+          };
+
+          return res.status(403).json({
+            success: false,
+            message:
+              "El acceso para profesores de secundaria está permanentemente bloqueado",
+            details: errorDetails,
+          });
+        }
+
+        if (esTutorPermanente) {
+          const errorDetails: AuthBlockedDetails = {
+            tiempoActualUTC: tiempoActual,
+            timestampDesbloqueoUTC: timestampTutor,
+            tiempoRestante: "Permanente",
+            fechaDesbloqueo: "No definida",
+            esBloqueoPermanente: true,
+          };
+
+          return res.status(403).json({
+            success: false,
+            message: "El acceso para tutores está permanentemente bloqueado",
+            details: errorDetails,
+          });
+        }
+
+        // Si ninguno es permanente, escogemos el que tenga mayor tiempo de bloqueo
+        const bloqueoMasLargo =
+          timestampProfesorSecundaria > timestampTutor
+            ? bloqueoProfesorSecundaria
+            : bloqueoTutor;
+
+        const timestampDesbloqueo = Number(
+          bloqueoMasLargo.Timestamp_Desbloqueo
+        );
+        const tiempoRestanteSegundos = timestampDesbloqueo - tiempoActual;
+        const horasRestantes = Math.floor(tiempoRestanteSegundos / 3600);
+        const minutosRestantes = Math.floor(
+          (tiempoRestanteSegundos % 3600) / 60
+        );
+
+        // Formatear fecha de desbloqueo
+        const fechaDesbloqueo = new Date(timestampDesbloqueo * 1000);
+        const fechaFormateada = fechaDesbloqueo.toLocaleString("es-ES", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+        const errorDetails: AuthBlockedDetails = {
+          tiempoActualUTC: tiempoActual,
+          timestampDesbloqueoUTC: timestampDesbloqueo,
+          tiempoRestante: `${horasRestantes}h ${minutosRestantes}m`,
+          fechaDesbloqueo: fechaFormateada,
+          esBloqueoPermanente: false,
+        };
+
+        return res.status(403).json({
+          success: false,
+          message:
+            "El acceso a profesores y tutores de secundaria está temporalmente bloqueado",
+          details: errorDetails,
+        });
+      }
+      // Si solo está bloqueado el rol de profesor de secundaria
+      else if (bloqueoProfesorSecundaria) {
+        const timestampDesbloqueo = Number(
+          bloqueoProfesorSecundaria.Timestamp_Desbloqueo
+        );
+
+        // Determinar si es un bloqueo permanente
+        const esBloqueoPermanente =
+          timestampDesbloqueo <= 0 || timestampDesbloqueo <= tiempoActual;
+
+        let tiempoRestante = "Permanente";
+        let fechaFormateada = "No definida";
+
+        if (!esBloqueoPermanente) {
+          const tiempoRestanteSegundos = timestampDesbloqueo - tiempoActual;
+          const horasRestantes = Math.floor(tiempoRestanteSegundos / 3600);
+          const minutosRestantes = Math.floor(
+            (tiempoRestanteSegundos % 3600) / 60
+          );
+          tiempoRestante = `${horasRestantes}h ${minutosRestantes}m`;
+
+          // Formatear fecha de desbloqueo
+          const fechaDesbloqueo = new Date(timestampDesbloqueo * 1000);
+          fechaFormateada = fechaDesbloqueo.toLocaleString("es-ES", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        }
+
+        const errorDetails: AuthBlockedDetails = {
+          tiempoActualUTC: tiempoActual,
+          timestampDesbloqueoUTC: timestampDesbloqueo,
+          tiempoRestante: tiempoRestante,
+          fechaDesbloqueo: fechaFormateada,
+          esBloqueoPermanente: esBloqueoPermanente,
+        };
+
+        return res.status(403).json({
+          success: false,
+          message: esBloqueoPermanente
+            ? "El acceso para profesores de secundaria está permanentemente bloqueado"
+            : "El acceso para profesores de secundaria está temporalmente bloqueado",
+          details: errorDetails,
+        });
+      }
+      // Si solo está bloqueado el rol de tutor
+      else if (bloqueoTutor) {
+        const timestampDesbloqueo = Number(bloqueoTutor.Timestamp_Desbloqueo);
+
+        // Determinar si es un bloqueo permanente
+        const esBloqueoPermanente =
+          timestampDesbloqueo <= 0 || timestampDesbloqueo <= tiempoActual;
+
+        let tiempoRestante = "Permanente";
+        let fechaFormateada = "No definida";
+
+        if (!esBloqueoPermanente) {
+          const tiempoRestanteSegundos = timestampDesbloqueo - tiempoActual;
+          const horasRestantes = Math.floor(tiempoRestanteSegundos / 3600);
+          const minutosRestantes = Math.floor(
+            (tiempoRestanteSegundos % 3600) / 60
+          );
+          tiempoRestante = `${horasRestantes}h ${minutosRestantes}m`;
+
+          // Formatear fecha de desbloqueo
+          const fechaDesbloqueo = new Date(timestampDesbloqueo * 1000);
+          fechaFormateada = fechaDesbloqueo.toLocaleString("es-ES", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        }
+
+        const errorDetails: AuthBlockedDetails = {
+          tiempoActualUTC: tiempoActual,
+          timestampDesbloqueoUTC: timestampDesbloqueo,
+          tiempoRestante: tiempoRestante,
+          fechaDesbloqueo: fechaFormateada,
+          esBloqueoPermanente: esBloqueoPermanente,
+        };
+
+        return res.status(403).json({
+          success: false,
+          message: esBloqueoPermanente
+            ? "El acceso para tutores está permanentemente bloqueado"
+            : "El acceso para tutores está temporalmente bloqueado",
+          details: errorDetails,
+        });
+      }
+    } catch (error) {
+      console.error("Error al verificar bloqueo de rol:", error);
+      // No bloqueamos el inicio de sesión por errores en la verificación
     }
 
     // Buscar el profesor de secundaria por nombre de usuario
@@ -56,16 +284,6 @@ router.post("/", (async (req: Request, res: Response) => {
             Color: true,
           },
         },
-        // // Información de cursos asignados
-        // cursos: {
-        //   select: {
-        //     Id_Curso_Horario: true,
-        //     Nombre_Curso: true,
-        //     Dia_Semana: true,
-        //     Indice_Hora_Academica_Inicio: true,
-        //     Cant_Hora_Academicas: true,
-        //   },
-        // },
       },
     });
 
@@ -119,26 +337,6 @@ router.post("/", (async (req: Request, res: Response) => {
       rol = RolesSistema.ProfesorSecundaria;
     }
 
-    // Preparar información del aula asignada si es tutor
-    // const aulaInfo = esTutor
-    //   ? {
-    //       Id_Aula: profesorSecundaria.aulas[0].Id_Aula,
-    //       Nivel: profesorSecundaria.aulas[0].Nivel,
-    //       Grado: profesorSecundaria.aulas[0].Grado,
-    //       Seccion: profesorSecundaria.aulas[0].Seccion,
-    //       Color: profesorSecundaria.aulas[0].Color,
-    //     }
-    //   : null;
-
-    // // Preparar información de cursos
-    // const cursosInfo = profesorSecundaria.cursos.map((curso) => ({
-    //   Id_Curso_Horario: curso.Id_Curso_Horario,
-    //   Nombre_Curso: curso.Nombre_Curso,
-    //   Dia_Semana: curso.Dia_Semana,
-    //   Indice_Hora_Academica_Inicio: curso.Indice_Hora_Academica_Inicio,
-    //   Cant_Hora_Academicas: curso.Cant_Hora_Academicas,
-    // }));
-
     const response: ResponseSuccessLogin = {
       message: "Inicio de sesión exitoso",
       data: {
@@ -148,10 +346,6 @@ router.post("/", (async (req: Request, res: Response) => {
         token,
         Google_Drive_Foto_ID: profesorSecundaria.Google_Drive_Foto_ID,
         Genero: profesorSecundaria.Genero as Genero,
-        // Solo incluir el aula si es tutor
-        // ...(esTutor && { Aula: aulaInfo }),
-        // // Incluir cursos para ambos roles
-        // Cursos: cursosInfo,
       },
     };
 

@@ -4,7 +4,8 @@ import loginRouter from "./api/login";
 import directivoRouter from "./api/directivo";
 import misDatosRouter from "./api/mis-datos";
 import { UserAuthenticatedAPI01 } from "../interfaces/JWTPayload";
-import AllErrorTypes from "../interfaces/shared/errors";
+import AllErrorTypes from "../interfaces/shared/apis/errors";
+import { ErrorDetails } from "../interfaces/shared/apis/errors/apis/details";
 const router = Router();
 
 // Extender la interfaz Request de Express
@@ -17,7 +18,7 @@ declare global {
       authError?: {
         type: AllErrorTypes;
         message: string;
-        details?: any;
+        details?: ErrorDetails;
       };
     }
   }

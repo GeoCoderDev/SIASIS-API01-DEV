@@ -4,9 +4,10 @@ import { RolesSistema } from "../interfaces/shared/RolesSistema";
 import { PrismaClient } from "@prisma/client";
 import { verificarBloqueoRol } from "../lib/helpers/verificators/verificarBloqueoRol";
 import { DirectivoAuthenticated, JWTPayload } from "../interfaces/JWTPayload";
-import { TokenErrorTypes } from "../interfaces/shared/errors/TokenErrorTypes";
-import { UserErrorTypes } from "../interfaces/shared/errors/UserErrorTypes";
-import { SystemErrorTypes } from "../interfaces/shared/errors/SystemErrorTypes";
+import { TokenErrorTypes } from "../interfaces/shared/apis/errors/TokenErrorTypes";
+import { UserErrorTypes } from "../interfaces/shared/apis/errors/UserErrorTypes";
+import { SystemErrorTypes } from "../interfaces/shared/apis/errors/SystemErrorTypes";
+import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/apis/details";
 
 const prisma = new PrismaClient();
 
@@ -17,8 +18,13 @@ const isDirectivoAuthenticated = async (
   next: NextFunction
 ) => {
   try {
-    // Si ya está autenticado con algún rol, continuar
+    // Si ya está autenticado con algún rol o ya hay un error, continuar
     if (req.isAuthenticated || req.authError) {
+      return next();
+    }
+
+    // Verificar si se envió el parámetro de Rol y si no coincide con Directivo, pasar al siguiente
+    if (req.query.Rol && req.query.Rol !== RolesSistema.Directivo) {
       return next();
     }
 
@@ -26,21 +32,26 @@ const isDirectivoAuthenticated = async (
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      // Almacenar el error en req para que checkAuthentication pueda usarlo
-      req.authError = {
-        type: TokenErrorTypes.TOKEN_MISSING,
-        message: "No se ha proporcionado un token de autenticación",
-      };
+      // Solo establecer error si estamos seguros que este es el rol correcto (por query param)
+      if (req.query.Rol === RolesSistema.Directivo) {
+        req.authError = {
+          type: TokenErrorTypes.TOKEN_MISSING,
+          message: "No se ha proporcionado un token de autenticación",
+        };
+      }
       return next();
     }
 
     // Verificar el formato "Bearer <token>"
     const parts = authHeader.split(" ");
     if (parts.length !== 2 || parts[0] !== "Bearer") {
-      req.authError = {
-        type: TokenErrorTypes.TOKEN_INVALID_FORMAT,
-        message: "Formato de token no válido",
-      };
+      // Solo establecer error si estamos seguros que este es el rol correcto (por query param)
+      if (req.query.Rol === RolesSistema.Directivo) {
+        req.authError = {
+          type: TokenErrorTypes.TOKEN_INVALID_FORMAT,
+          message: "Formato de token no válido",
+        };
+      }
       return next();
     }
 
@@ -48,10 +59,25 @@ const isDirectivoAuthenticated = async (
     const jwtSecretKey = process.env.JWT_KEY_DIRECTIVOS!;
 
     try {
-      // Verificar el token
+      // Si no tenemos el parámetro Rol, verificar primero si este token es para este rol
+      if (!req.query.Rol) {
+        try {
+          // Intentar verificar si el token es para este rol
+          const decoded = jwt.decode(token) as JWTPayload;
+          if (!decoded || decoded.Rol !== RolesSistema.Directivo) {
+            return next(); // No es para este rol, continuar al siguiente middleware
+          }
+        } catch (error) {
+          // Error al decodificar, probablemente no es para este rol
+          return next();
+        }
+      }
+
+      // A partir de aquí, sabemos que el token debería ser para un Directivo
+      // Proceder con la verificación completa
       const decodedPayload = jwt.verify(token, jwtSecretKey) as JWTPayload;
 
-      // Verificar que el rol sea de Directivo
+      // Verificar que el rol sea de Directivo (doble verificación)
       if (decodedPayload.Rol !== RolesSistema.Directivo) {
         req.authError = {
           type: TokenErrorTypes.TOKEN_WRONG_ROLE,
@@ -60,8 +86,8 @@ const isDirectivoAuthenticated = async (
         return next();
       }
 
+      // Verificar si el rol está bloqueado
       try {
-        // Verificar si el rol está bloqueado
         const bloqueado = await verificarBloqueoRol(
           req,
           RolesSistema.Directivo,
@@ -90,7 +116,7 @@ const isDirectivoAuthenticated = async (
         req.authError = {
           type: SystemErrorTypes.DATABASE_ERROR,
           message: "Error al verificar el estado del usuario o rol",
-          details: dbError,
+          details: dbError as ErrorObjectGeneric,
         };
         return next();
       }
@@ -108,6 +134,8 @@ const isDirectivoAuthenticated = async (
       // Si todo está bien, continuar
       next();
     } catch (jwtError: any) {
+      // Ahora sabemos que el token era para este rol pero falló la verificación
+      
       // Capturar errores específicos de JWT
       if (jwtError.name === "TokenExpiredError") {
         req.authError = {
@@ -121,7 +149,7 @@ const isDirectivoAuthenticated = async (
         if (jwtError.message === "invalid signature") {
           req.authError = {
             type: TokenErrorTypes.TOKEN_INVALID_SIGNATURE,
-            message: "La firma del token es inválida DIRECTIVO",
+            message: "La firma del token es inválida para directivo",
           };
         } else {
           req.authError = {
@@ -145,10 +173,9 @@ const isDirectivoAuthenticated = async (
     req.authError = {
       type: SystemErrorTypes.UNKNOWN_ERROR,
       message: "Error desconocido en el proceso de autenticación",
-      details: error,
+      details: error as ErrorObjectGeneric,
     };
     next();
   }
 };
-
 export default isDirectivoAuthenticated;
