@@ -10,7 +10,7 @@ import {
 import { TokenErrorTypes } from "../interfaces/shared/apis/errors/TokenErrorTypes";
 import { UserErrorTypes } from "../interfaces/shared/apis/errors/UserErrorTypes";
 import { SystemErrorTypes } from "../interfaces/shared/apis/errors/SystemErrorTypes";
-import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/apis/details";
+import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/details";
 
 const prisma = new PrismaClient();
 
@@ -27,7 +27,10 @@ const isPersonalAdministrativoAuthenticated = async (
     }
 
     // Verificar si se envió el parámetro de Rol y si no coincide con PersonalAdministrativo, pasar al siguiente
-    if (req.query.Rol && req.query.Rol !== RolesSistema.PersonalAdministrativo) {
+    if (
+      req.query.Rol &&
+      req.query.Rol !== RolesSistema.PersonalAdministrativo
+    ) {
       return next();
     }
 
@@ -84,7 +87,8 @@ const isPersonalAdministrativoAuthenticated = async (
       if (decodedPayload.Rol !== RolesSistema.PersonalAdministrativo) {
         req.authError = {
           type: TokenErrorTypes.TOKEN_WRONG_ROLE,
-          message: "El token no corresponde a un usuario de personal administrativo",
+          message:
+            "El token no corresponde a un usuario de personal administrativo",
         };
         return next();
       }
@@ -114,7 +118,8 @@ const isPersonalAdministrativoAuthenticated = async (
         if (!personal || !personal.Estado) {
           req.authError = {
             type: UserErrorTypes.USER_INACTIVE,
-            message: "La cuenta de personal administrativo está inactiva o no existe",
+            message:
+              "La cuenta de personal administrativo está inactiva o no existe",
           };
           return next();
         }
@@ -132,7 +137,7 @@ const isPersonalAdministrativoAuthenticated = async (
         DNI_Personal_Administrativo: decodedPayload.ID_Usuario,
         Nombre_Usuario: decodedPayload.Nombre_Usuario,
       } as PersonalAdministrativoAuthenticated;
-      
+
       // Marcar como autenticado para que los siguientes middlewares no reprocesen
       req.isAuthenticated = true;
       req.userRole = RolesSistema.PersonalAdministrativo;
@@ -141,7 +146,7 @@ const isPersonalAdministrativoAuthenticated = async (
       next();
     } catch (jwtError: any) {
       // Ahora sabemos que el token era para este rol pero falló la verificación
-      
+
       // Capturar errores específicos de JWT
       if (jwtError.name === "TokenExpiredError") {
         req.authError = {
@@ -155,7 +160,8 @@ const isPersonalAdministrativoAuthenticated = async (
         if (jwtError.message === "invalid signature") {
           req.authError = {
             type: TokenErrorTypes.TOKEN_INVALID_SIGNATURE,
-            message: "La firma del token es inválida para personal administrativo",
+            message:
+              "La firma del token es inválida para personal administrativo",
           };
         } else {
           req.authError = {

@@ -5,7 +5,7 @@ import { verifyPersonalAdministrativoPassword } from "../../../../lib/helpers/en
 import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
 import { Genero } from "../../../../interfaces/shared/Genero";
 import { ResponseSuccessLogin } from "../../../../interfaces/shared/apis/shared/login/types";
-import { AuthBlockedDetails } from "../../../../interfaces/shared/apis/errors/apis/details/AuthBloquedDetails";
+import { AuthBlockedDetails } from "../../../../interfaces/shared/apis/errors/details/AuthBloquedDetails";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -151,6 +151,7 @@ router.post("/", (async (req: Request, res: Response) => {
 
     const response: ResponseSuccessLogin = {
       message: "Inicio de sesión exitoso",
+      success: true,
       data: {
         Apellidos: personalAdministrativo.Apellidos,
         Nombres: personalAdministrativo.Nombres,
