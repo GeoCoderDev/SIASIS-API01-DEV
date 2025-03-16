@@ -17,7 +17,7 @@ const checkAuthentication = (
   }
 
   // Si no está autenticado, verificar si hay un error específico
-  if (req.authError) {
+  if (!req.isAuthenticated && req.authError) {
     const errorResponse: ErrorResponseAPIBase = {
       success: false,
       message: req.authError.message,
