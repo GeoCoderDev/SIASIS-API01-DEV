@@ -3,8 +3,9 @@ import { Request, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
 import { RolesSistema } from "../../../interfaces/shared/RolesSistema";
 import { RolesTexto } from "../../../../assets/RolesTextosEspañol";
-import { PermissionErrorTypes } from "../../../interfaces/shared/errors/PermissionErrorTypes";
-import { SystemErrorTypes } from "../../../interfaces/shared/errors/SystemErrorTypes";
+import { PermissionErrorTypes } from "../../../interfaces/shared/apis/errors/PermissionErrorTypes";
+import { SystemErrorTypes } from "../../../interfaces/shared/apis/errors/SystemErrorTypes";
+import { ErrorObjectGeneric } from "../../../interfaces/shared/apis/errors/apis/details";
 
 const prisma = new PrismaClient();
 
@@ -86,7 +87,7 @@ export async function verificarBloqueoRol(
     req.authError = {
       type: SystemErrorTypes.DATABASE_ERROR,
       message: "Error al verificar el estado del rol",
-      details: error,
+      details: error as ErrorObjectGeneric,
     };
     next();
     return true; // Consideramos que hay bloqueo en caso de error para ser conservadores

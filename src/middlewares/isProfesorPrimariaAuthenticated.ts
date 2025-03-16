@@ -7,9 +7,10 @@ import {
   JWTPayload,
   ProfesorPrimariaAuthenticated,
 } from "../interfaces/JWTPayload";
-import { TokenErrorTypes } from "../interfaces/shared/errors/TokenErrorTypes";
-import { UserErrorTypes } from "../interfaces/shared/errors/UserErrorTypes";
-import { SystemErrorTypes } from "../interfaces/shared/errors/SystemErrorTypes";
+import { TokenErrorTypes } from "../interfaces/shared/apis/errors/TokenErrorTypes";
+import { UserErrorTypes } from "../interfaces/shared/apis/errors/UserErrorTypes";
+import { SystemErrorTypes } from "../interfaces/shared/apis/errors/SystemErrorTypes";
+import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/apis/details";
 
 const prisma = new PrismaClient();
 
@@ -20,8 +21,13 @@ const isProfesorPrimariaAuthenticated = async (
   next: NextFunction
 ) => {
   try {
-    // Si ya está autenticado con algún rol, continuar
+    // Si ya está autenticado con algún rol o ya hay un error, continuar
     if (req.isAuthenticated || req.authError) {
+      return next();
+    }
+
+    // Verificar si se envió el parámetro de Rol y si no coincide con ProfesorPrimaria, pasar al siguiente
+    if (req.query.Rol && req.query.Rol !== RolesSistema.ProfesorPrimaria) {
       return next();
     }
 
@@ -29,32 +35,52 @@ const isProfesorPrimariaAuthenticated = async (
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      // Almacenar el error en req para que checkAuthentication pueda usarlo
-      req.authError = {
-        type: TokenErrorTypes.TOKEN_MISSING,
-        message: "No se ha proporcionado un token de autenticación",
-      };
+      // Solo establecer error si estamos seguros que este es el rol correcto (por query param)
+      if (req.query.Rol === RolesSistema.ProfesorPrimaria) {
+        req.authError = {
+          type: TokenErrorTypes.TOKEN_MISSING,
+          message: "No se ha proporcionado un token de autenticación",
+        };
+      }
       return next();
     }
 
     // Verificar el formato "Bearer <token>"
     const parts = authHeader.split(" ");
     if (parts.length !== 2 || parts[0] !== "Bearer") {
-      req.authError = {
-        type: TokenErrorTypes.TOKEN_INVALID_FORMAT,
-        message: "Formato de token no válido",
-      };
+      // Solo establecer error si estamos seguros que este es el rol correcto (por query param)
+      if (req.query.Rol === RolesSistema.ProfesorPrimaria) {
+        req.authError = {
+          type: TokenErrorTypes.TOKEN_INVALID_FORMAT,
+          message: "Formato de token no válido",
+        };
+      }
       return next();
     }
 
     const token = parts[1];
     const jwtSecretKey = process.env.JWT_KEY_PROFESORES_PRIMARIA!;
 
+    // Si no tenemos el parámetro Rol, intentar determinar si este token es para este rol
+    if (!req.query.Rol) {
+      try {
+        // Intentar decodificar para ver si el token es para este rol
+        const decoded = jwt.decode(token) as JWTPayload;
+        if (!decoded || decoded.Rol !== RolesSistema.ProfesorPrimaria) {
+          return next(); // No es para este rol, continuar al siguiente middleware
+        }
+      } catch (error) {
+        // Error al decodificar, probablemente no es para este rol
+        return next();
+      }
+    }
+
     try {
-      // Verificar el token
+      // A partir de aquí, sabemos que el token debería ser para Profesor de Primaria
+      // Proceder con la verificación completa
       const decodedPayload = jwt.verify(token, jwtSecretKey) as JWTPayload;
 
-      // Verificar que el rol sea de Profesor Primaria
+      // Verificar que el rol sea de Profesor Primaria (doble verificación)
       if (decodedPayload.Rol !== RolesSistema.ProfesorPrimaria) {
         req.authError = {
           type: TokenErrorTypes.TOKEN_WRONG_ROLE,
@@ -97,7 +123,7 @@ const isProfesorPrimariaAuthenticated = async (
         req.authError = {
           type: SystemErrorTypes.DATABASE_ERROR,
           message: "Error al verificar el estado del usuario o rol",
-          details: dbError,
+          details: dbError as ErrorObjectGeneric,
         };
         return next();
       }
@@ -107,6 +133,7 @@ const isProfesorPrimariaAuthenticated = async (
         DNI_Profesor_Primaria: decodedPayload.ID_Usuario,
         Nombre_Usuario: decodedPayload.Nombre_Usuario,
       } as ProfesorPrimariaAuthenticated;
+      
       // Marcar como autenticado para que los siguientes middlewares no reprocesen
       req.isAuthenticated = true;
       req.userRole = RolesSistema.ProfesorPrimaria;
@@ -114,6 +141,8 @@ const isProfesorPrimariaAuthenticated = async (
       // Si todo está bien, continuar
       next();
     } catch (jwtError: any) {
+      // Ahora sabemos que el token era para este rol pero falló la verificación
+      
       // Capturar errores específicos de JWT
       if (jwtError.name === "TokenExpiredError") {
         req.authError = {
@@ -127,7 +156,7 @@ const isProfesorPrimariaAuthenticated = async (
         if (jwtError.message === "invalid signature") {
           req.authError = {
             type: TokenErrorTypes.TOKEN_INVALID_SIGNATURE,
-            message: "La firma del token es inválida PROFESOR PRIMARIA",
+            message: "La firma del token es inválida para profesor de primaria",
           };
         } else {
           req.authError = {
@@ -151,7 +180,7 @@ const isProfesorPrimariaAuthenticated = async (
     req.authError = {
       type: SystemErrorTypes.UNKNOWN_ERROR,
       message: "Error desconocido en el proceso de autenticación",
-      details: error,
+      details: error as ErrorObjectGeneric,
     };
     next();
   }

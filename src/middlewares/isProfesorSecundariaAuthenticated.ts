@@ -7,9 +7,10 @@ import {
   JWTPayload,
   ProfesorTutorSecundariaAuthenticated,
 } from "../interfaces/JWTPayload";
-import { TokenErrorTypes } from "../interfaces/shared/errors/TokenErrorTypes";
-import { UserErrorTypes } from "../interfaces/shared/errors/UserErrorTypes";
-import { SystemErrorTypes } from "../interfaces/shared/errors/SystemErrorTypes";
+import { TokenErrorTypes } from "../interfaces/shared/apis/errors/TokenErrorTypes";
+import { UserErrorTypes } from "../interfaces/shared/apis/errors/UserErrorTypes";
+import { SystemErrorTypes } from "../interfaces/shared/apis/errors/SystemErrorTypes";
+import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/apis/details";
 
 const prisma = new PrismaClient();
 
@@ -20,8 +21,13 @@ const isProfesorSecundariaAuthenticated = async (
   next: NextFunction
 ) => {
   try {
-    // Si ya está autenticado con algún rol, continuar
+    // Si ya está autenticado con algún rol o ya hay un error, continuar
     if (req.isAuthenticated || req.authError) {
+      return next();
+    }
+
+    // Verificar si se envió el parámetro de Rol y si no coincide con ProfesorSecundaria, pasar al siguiente
+    if (req.query.Rol && req.query.Rol !== RolesSistema.ProfesorSecundaria) {
       return next();
     }
 
@@ -29,37 +35,56 @@ const isProfesorSecundariaAuthenticated = async (
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      // Almacenar el error en req para que checkAuthentication pueda usarlo
-      req.authError = {
-        type: TokenErrorTypes.TOKEN_MISSING,
-        message: "No se ha proporcionado un token de autenticación",
-      };
+      // Solo establecer error si estamos seguros que este es el rol correcto (por query param)
+      if (req.query.Rol === RolesSistema.ProfesorSecundaria) {
+        req.authError = {
+          type: TokenErrorTypes.TOKEN_MISSING,
+          message: "No se ha proporcionado un token de autenticación",
+        };
+      }
       return next();
     }
 
     // Verificar el formato "Bearer <token>"
     const parts = authHeader.split(" ");
     if (parts.length !== 2 || parts[0] !== "Bearer") {
-      req.authError = {
-        type: TokenErrorTypes.TOKEN_INVALID_FORMAT,
-        message: "Formato de token no válido",
-      };
+      // Solo establecer error si estamos seguros que este es el rol correcto (por query param)
+      if (req.query.Rol === RolesSistema.ProfesorSecundaria) {
+        req.authError = {
+          type: TokenErrorTypes.TOKEN_INVALID_FORMAT,
+          message: "Formato de token no válido",
+        };
+      }
       return next();
     }
 
     const token = parts[1];
     const jwtSecretKey = process.env.JWT_KEY_PROFESORES_SECUNDARIA!;
 
+    // Si no tenemos el parámetro Rol, intentar determinar si este token es para este rol
+    if (!req.query.Rol) {
+      try {
+        // Intentar decodificar para ver si el token es para este rol
+        const decoded = jwt.decode(token) as JWTPayload;
+        if (!decoded || decoded.Rol !== RolesSistema.ProfesorSecundaria) {
+          return next(); // No es para este rol, continuar al siguiente middleware
+        }
+      } catch (error) {
+        // Error al decodificar, probablemente no es para este rol
+        return next();
+      }
+    }
+
     try {
-      // Verificar el token
+      // A partir de aquí, sabemos que el token debería ser para Profesor de Secundaria
+      // Proceder con la verificación completa
       const decodedPayload = jwt.verify(token, jwtSecretKey) as JWTPayload;
 
-      // Verificar que el rol sea de Profesor Secundaria
+      // Verificar que el rol sea de Profesor Secundaria (doble verificación)
       if (decodedPayload.Rol !== RolesSistema.ProfesorSecundaria) {
         req.authError = {
           type: TokenErrorTypes.TOKEN_WRONG_ROLE,
-          message:
-            "El token no corresponde a un usuario profesor de secundaria",
+          message: "El token no corresponde a un usuario profesor de secundaria",
         };
         return next();
       }
@@ -75,6 +100,7 @@ const isProfesorSecundariaAuthenticated = async (
         if (bloqueado) {
           return; // La función verificarBloqueoRol ya llamó a next()
         }
+        
         // Verificar si el profesor de secundaria existe y está activo
         const profesor = await prisma.t_Profesores_Secundaria.findUnique({
           where: {
@@ -88,8 +114,7 @@ const isProfesorSecundariaAuthenticated = async (
         if (!profesor || !profesor.Estado) {
           req.authError = {
             type: UserErrorTypes.USER_INACTIVE,
-            message:
-              "La cuenta de profesor de secundaria está inactiva o no existe",
+            message: "La cuenta de profesor de secundaria está inactiva o no existe",
           };
           return next();
         }
@@ -97,7 +122,7 @@ const isProfesorSecundariaAuthenticated = async (
         req.authError = {
           type: SystemErrorTypes.DATABASE_ERROR,
           message: "Error al verificar el estado del usuario o rol",
-          details: dbError,
+          details: dbError as ErrorObjectGeneric,
         };
         return next();
       }
@@ -107,6 +132,7 @@ const isProfesorSecundariaAuthenticated = async (
         DNI_Profesor_Secundaria: decodedPayload.ID_Usuario,
         Nombre_Usuario: decodedPayload.Nombre_Usuario,
       } as ProfesorTutorSecundariaAuthenticated;
+      
       // Marcar como autenticado para que los siguientes middlewares no reprocesen
       req.isAuthenticated = true;
       req.userRole = RolesSistema.ProfesorSecundaria;
@@ -114,6 +140,8 @@ const isProfesorSecundariaAuthenticated = async (
       // Si todo está bien, continuar
       next();
     } catch (jwtError: any) {
+      // Ahora sabemos que el token era para este rol pero falló la verificación
+      
       // Capturar errores específicos de JWT
       if (jwtError.name === "TokenExpiredError") {
         req.authError = {
@@ -127,7 +155,7 @@ const isProfesorSecundariaAuthenticated = async (
         if (jwtError.message === "invalid signature") {
           req.authError = {
             type: TokenErrorTypes.TOKEN_INVALID_SIGNATURE,
-            message: "La firma del token es inválida AQUI PROFESOR SECUNDARIA",
+            message: "La firma del token es inválida para profesor de secundaria",
           };
         } else {
           req.authError = {
@@ -151,7 +179,7 @@ const isProfesorSecundariaAuthenticated = async (
     req.authError = {
       type: SystemErrorTypes.UNKNOWN_ERROR,
       message: "Error desconocido en el proceso de autenticación",
-      details: error,
+      details: error as ErrorObjectGeneric,
     };
     next();
   }

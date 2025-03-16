@@ -7,10 +7,11 @@ import {
   JWTPayload,
   ProfesorTutorSecundariaAuthenticated,
 } from "../interfaces/JWTPayload";
-import { TokenErrorTypes } from "../interfaces/shared/errors/TokenErrorTypes";
-import { UserErrorTypes } from "../interfaces/shared/errors/UserErrorTypes";
-import { PermissionErrorTypes } from "../interfaces/shared/errors/PermissionErrorTypes";
-import { SystemErrorTypes } from "../interfaces/shared/errors/SystemErrorTypes";
+import { TokenErrorTypes } from "../interfaces/shared/apis/errors/TokenErrorTypes";
+import { UserErrorTypes } from "../interfaces/shared/apis/errors/UserErrorTypes";
+import { PermissionErrorTypes } from "../interfaces/shared/apis/errors/PermissionErrorTypes";
+import { SystemErrorTypes } from "../interfaces/shared/apis/errors/SystemErrorTypes";
+import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/apis/details";
 
 const prisma = new PrismaClient();
 
@@ -21,8 +22,13 @@ const isTutorAuthenticated = async (
   next: NextFunction
 ) => {
   try {
-    // Si ya está autenticado con algún rol, continuar
+    // Si ya está autenticado con algún rol o ya hay un error, continuar
     if (req.isAuthenticated || req.authError) {
+      return next();
+    }
+
+    // Verificar si se envió el parámetro de Rol y si no coincide con Tutor, pasar al siguiente
+    if (req.query.Rol && req.query.Rol !== RolesSistema.Tutor) {
       return next();
     }
 
@@ -30,33 +36,53 @@ const isTutorAuthenticated = async (
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      // Almacenar el error en req para que checkAuthentication pueda usarlo
-      req.authError = {
-        type: TokenErrorTypes.TOKEN_MISSING,
-        message: "No se ha proporcionado un token de autenticación",
-      };
+      // Solo establecer error si estamos seguros que este es el rol correcto (por query param)
+      if (req.query.Rol === RolesSistema.Tutor) {
+        req.authError = {
+          type: TokenErrorTypes.TOKEN_MISSING,
+          message: "No se ha proporcionado un token de autenticación",
+        };
+      }
       return next();
     }
 
     // Verificar el formato "Bearer <token>"
     const parts = authHeader.split(" ");
     if (parts.length !== 2 || parts[0] !== "Bearer") {
-      req.authError = {
-        type: TokenErrorTypes.TOKEN_INVALID_FORMAT,
-        message: "Formato de token no válido",
-      };
+      // Solo establecer error si estamos seguros que este es el rol correcto (por query param)
+      if (req.query.Rol === RolesSistema.Tutor) {
+        req.authError = {
+          type: TokenErrorTypes.TOKEN_INVALID_FORMAT,
+          message: "Formato de token no válido",
+        };
+      }
       return next();
     }
 
     const token = parts[1];
     const jwtSecretKey = process.env.JWT_KEY_TUTORES!;
 
-    try {
-      // Verificar el token
-      const decoded = jwt.verify(token, jwtSecretKey) as JWTPayload;
+    // Si no tenemos el parámetro Rol, intentar determinar si este token es para este rol
+    if (!req.query.Rol) {
+      try {
+        // Intentar decodificar para ver si el token es para este rol
+        const decoded = jwt.decode(token) as JWTPayload;
+        if (!decoded || decoded.Rol !== RolesSistema.Tutor) {
+          return next(); // No es para este rol, continuar al siguiente middleware
+        }
+      } catch (error) {
+        // Error al decodificar, probablemente no es para este rol
+        return next();
+      }
+    }
 
-      // Verificar que el rol sea de Tutor Secundaria
-      if (decoded.Rol !== RolesSistema.Tutor) {
+    try {
+      // A partir de aquí, sabemos que el token debería ser para Tutor
+      // Proceder con la verificación completa
+      const decodedPayload = jwt.verify(token, jwtSecretKey) as JWTPayload;
+
+      // Verificar que el rol sea de Tutor (doble verificación)
+      if (decodedPayload.Rol !== RolesSistema.Tutor) {
         req.authError = {
           type: TokenErrorTypes.TOKEN_WRONG_ROLE,
           message: "El token no corresponde a un usuario tutor de secundaria",
@@ -79,7 +105,7 @@ const isTutorAuthenticated = async (
         // Verificar si el profesor de secundaria (tutor) existe y está activo
         const profesor = await prisma.t_Profesores_Secundaria.findUnique({
           where: {
-            DNI_Profesor_Secundaria: decoded.ID_Usuario,
+            DNI_Profesor_Secundaria: decodedPayload.ID_Usuario,
           },
           select: {
             Estado: true,
@@ -111,16 +137,17 @@ const isTutorAuthenticated = async (
         req.authError = {
           type: SystemErrorTypes.DATABASE_ERROR,
           message: "Error al verificar el estado del usuario o rol",
-          details: dbError,
+          details: dbError as ErrorObjectGeneric,
         };
         return next();
       }
 
       // Agregar información del usuario decodificada a la solicitud para uso posterior
       req.user = {
-        DNI_Profesor_Secundaria: decoded.ID_Usuario,
-        Nombre_Usuario: decoded.Nombre_Usuario,
+        DNI_Profesor_Secundaria: decodedPayload.ID_Usuario,
+        Nombre_Usuario: decodedPayload.Nombre_Usuario,
       } as ProfesorTutorSecundariaAuthenticated;
+
       // Marcar como autenticado para que los siguientes middlewares no reprocesen
       req.isAuthenticated = true;
       req.userRole = RolesSistema.Tutor;
@@ -128,6 +155,8 @@ const isTutorAuthenticated = async (
       // Si todo está bien, continuar
       next();
     } catch (jwtError: any) {
+      // Ahora sabemos que el token era para este rol pero falló la verificación
+
       // Capturar errores específicos de JWT
       if (jwtError.name === "TokenExpiredError") {
         req.authError = {
@@ -141,7 +170,7 @@ const isTutorAuthenticated = async (
         if (jwtError.message === "invalid signature") {
           req.authError = {
             type: TokenErrorTypes.TOKEN_INVALID_SIGNATURE,
-            message: "La firma del token es inválida",
+            message: "La firma del token es inválida para tutor de secundaria",
           };
         } else {
           req.authError = {
@@ -165,7 +194,7 @@ const isTutorAuthenticated = async (
     req.authError = {
       type: SystemErrorTypes.UNKNOWN_ERROR,
       message: "Error desconocido en el proceso de autenticación",
-      details: error,
+      details: error as ErrorObjectGeneric,
     };
     next();
   }
