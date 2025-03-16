@@ -8,7 +8,6 @@ import { TokenErrorTypes } from "../interfaces/shared/errors/TokenErrorTypes";
 import { UserErrorTypes } from "../interfaces/shared/errors/UserErrorTypes";
 import { SystemErrorTypes } from "../interfaces/shared/errors/SystemErrorTypes";
 
-
 const prisma = new PrismaClient();
 
 // Middleware para verificar si el usuario es un Auxiliar
@@ -19,7 +18,7 @@ const isAuxiliarAuthenticated = async (
 ) => {
   try {
     // Si ya está autenticado con algún rol, continuar
-    if (req.isAuthenticated) {
+    if (req.isAuthenticated || req.authError) {
       return next();
     }
 
