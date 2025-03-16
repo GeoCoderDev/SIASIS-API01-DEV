@@ -7,7 +7,7 @@ import { DirectivoAuthenticated, JWTPayload } from "../interfaces/JWTPayload";
 import { TokenErrorTypes } from "../interfaces/shared/apis/errors/TokenErrorTypes";
 import { UserErrorTypes } from "../interfaces/shared/apis/errors/UserErrorTypes";
 import { SystemErrorTypes } from "../interfaces/shared/apis/errors/SystemErrorTypes";
-import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/apis/details";
+import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/details";
 
 const prisma = new PrismaClient();
 
@@ -135,7 +135,7 @@ const isDirectivoAuthenticated = async (
       next();
     } catch (jwtError: any) {
       // Ahora sabemos que el token era para este rol pero falló la verificación
-      
+
       // Capturar errores específicos de JWT
       if (jwtError.name === "TokenExpiredError") {
         req.authError = {

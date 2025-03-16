@@ -7,7 +7,7 @@ import { JWTPayload, ResponsableAuthenticated } from "../interfaces/JWTPayload";
 import { TokenErrorTypes } from "../interfaces/shared/apis/errors/TokenErrorTypes";
 import { SystemErrorTypes } from "../interfaces/shared/apis/errors/SystemErrorTypes";
 import { UserErrorTypes } from "../interfaces/shared/apis/errors/UserErrorTypes";
-import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/apis/details";
+import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/details";
 
 const prisma = new PrismaClient();
 
@@ -144,7 +144,7 @@ const isResponsableAuthenticated = async (
         DNI_Responsable: decodedPayload.ID_Usuario,
         Nombre_Usuario: decodedPayload.Nombre_Usuario,
       } as ResponsableAuthenticated;
-      
+
       // Marcar como autenticado para que los siguientes middlewares no reprocesen
       req.isAuthenticated = true;
       req.userRole = RolesSistema.Responsable;
@@ -153,7 +153,7 @@ const isResponsableAuthenticated = async (
       next();
     } catch (jwtError: any) {
       // Ahora sabemos que el token era para este rol pero falló la verificación
-      
+
       // Capturar errores específicos de JWT
       if (jwtError.name === "TokenExpiredError") {
         req.authError = {

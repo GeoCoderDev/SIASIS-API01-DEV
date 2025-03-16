@@ -1,21 +1,25 @@
 import AllErrorTypes from "./errors";
 
+export interface MessageProperty {
+  message: string;
+}
+
 /**
  * Base para todas las respuestas de la API
  */
-export interface ApiResponseBase {
-  message: string;
+export interface ApiResponseBase extends MessageProperty {
+  success: boolean;
 }
 
-export interface SuccessResponseAPIBase {
+export interface SuccessResponseAPIBase extends ApiResponseBase {
   success: true;
   message: string;
-  data: any;
+  data?: any;
 }
 
-export interface ErrorResponseAPIBase {
+export interface ErrorResponseAPIBase extends ApiResponseBase {
   message: string;
   success: false;
   details?: any;
-  errorType: AllErrorTypes;
+  errorType?: AllErrorTypes;
 }

@@ -5,7 +5,7 @@ import { RolesSistema } from "../../../interfaces/shared/RolesSistema";
 import { RolesTexto } from "../../../../assets/RolesTextosEspañol";
 import { PermissionErrorTypes } from "../../../interfaces/shared/apis/errors/PermissionErrorTypes";
 import { SystemErrorTypes } from "../../../interfaces/shared/apis/errors/SystemErrorTypes";
-import { ErrorObjectGeneric } from "../../../interfaces/shared/apis/errors/apis/details";
+import { ErrorObjectGeneric } from "../../../interfaces/shared/apis/errors/details";
 
 const prisma = new PrismaClient();
 

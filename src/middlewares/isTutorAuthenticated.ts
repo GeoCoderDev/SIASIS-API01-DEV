@@ -11,7 +11,7 @@ import { TokenErrorTypes } from "../interfaces/shared/apis/errors/TokenErrorType
 import { UserErrorTypes } from "../interfaces/shared/apis/errors/UserErrorTypes";
 import { PermissionErrorTypes } from "../interfaces/shared/apis/errors/PermissionErrorTypes";
 import { SystemErrorTypes } from "../interfaces/shared/apis/errors/SystemErrorTypes";
-import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/apis/details";
+import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/details";
 
 const prisma = new PrismaClient();
 

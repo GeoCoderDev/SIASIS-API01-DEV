@@ -4,7 +4,7 @@ import { generateResponsableToken } from "../../../../lib/helpers/generators/JWT
 import { verifyResponsablePassword } from "../../../../lib/helpers/encriptations/responsable.encriptation";
 import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
 import { ResponseSuccessLogin } from "../../../../interfaces/shared/apis/shared/login/types";
-import { AuthBlockedDetails } from "../../../../interfaces/shared/apis/errors/apis/details/AuthBloquedDetails";
+import { AuthBlockedDetails } from "../../../../interfaces/shared/apis/errors/details/AuthBloquedDetails";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -37,27 +37,30 @@ router.post("/", (async (req: Request, res: Response) => {
       const bloqueoRol = await prisma.t_Bloqueo_Roles.findFirst({
         where: {
           Rol: RolesSistema.Responsable,
-          Bloqueo_Total: true
+          Bloqueo_Total: true,
         },
       });
 
       if (bloqueoRol) {
         const tiempoActual = Math.floor(Date.now() / 1000);
         const timestampDesbloqueo = Number(bloqueoRol.Timestamp_Desbloqueo);
-        
+
         // Determinamos si es un bloqueo permanente (timestamp = 0 o en el pasado)
-        const esBloqueoPermanente = timestampDesbloqueo <= 0 || timestampDesbloqueo <= tiempoActual;
-        
+        const esBloqueoPermanente =
+          timestampDesbloqueo <= 0 || timestampDesbloqueo <= tiempoActual;
+
         // Calculamos el tiempo restante solo si NO es un bloqueo permanente
         let tiempoRestante = "Permanente";
         let fechaFormateada = "No definida";
-        
+
         if (!esBloqueoPermanente) {
           const tiempoRestanteSegundos = timestampDesbloqueo - tiempoActual;
           const horasRestantes = Math.floor(tiempoRestanteSegundos / 3600);
-          const minutosRestantes = Math.floor((tiempoRestanteSegundos % 3600) / 60);
+          const minutosRestantes = Math.floor(
+            (tiempoRestanteSegundos % 3600) / 60
+          );
           tiempoRestante = `${horasRestantes}h ${minutosRestantes}m`;
-          
+
           // Formatear fecha de desbloqueo
           const fechaDesbloqueo = new Date(timestampDesbloqueo * 1000);
           fechaFormateada = fechaDesbloqueo.toLocaleString("es-ES", {
@@ -74,13 +77,13 @@ router.post("/", (async (req: Request, res: Response) => {
           timestampDesbloqueoUTC: timestampDesbloqueo,
           tiempoRestante: tiempoRestante,
           fechaDesbloqueo: fechaFormateada,
-          esBloqueoPermanente: esBloqueoPermanente
+          esBloqueoPermanente: esBloqueoPermanente,
         };
 
         return res.status(403).json({
           success: false,
-          message: esBloqueoPermanente 
-            ? "El acceso para responsables está permanentemente bloqueado" 
+          message: esBloqueoPermanente
+            ? "El acceso para responsables está permanentemente bloqueado"
             : "El acceso para responsables está temporalmente bloqueado",
           details: errorDetails,
         });

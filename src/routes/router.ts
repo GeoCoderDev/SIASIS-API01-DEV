@@ -5,7 +5,7 @@ import directivoRouter from "./api/directivo";
 import misDatosRouter from "./api/mis-datos";
 import { UserAuthenticatedAPI01 } from "../interfaces/JWTPayload";
 import AllErrorTypes from "../interfaces/shared/apis/errors";
-import { ErrorDetails } from "../interfaces/shared/apis/errors/apis/details";
+import { ErrorDetails } from "../interfaces/shared/apis/errors/details";
 const router = Router();
 
 // Extender la interfaz Request de Express
