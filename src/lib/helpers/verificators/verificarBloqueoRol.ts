@@ -3,9 +3,12 @@ import { Request, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
 import { RolesSistema } from "../../../interfaces/shared/RolesSistema";
 import { RolesTexto } from "../../../../assets/RolesTextosEspañol";
-import { PermissionErrorTypes } from "../../../interfaces/shared/apis/errors/PermissionErrorTypes";
-import { SystemErrorTypes } from "../../../interfaces/shared/apis/errors/SystemErrorTypes";
+
 import { ErrorObjectGeneric } from "../../../interfaces/shared/apis/errors/details";
+import {
+  PermissionErrorTypes,
+  SystemErrorTypes,
+} from "../../../interfaces/shared/apis/errors";
 
 const prisma = new PrismaClient();
 

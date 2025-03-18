@@ -1,4 +1,4 @@
-import { DataConflictErrorTypes } from "../../../../../interfaces/shared/apis/errors/DataConflictErrorTypes";
+import { DataConflictErrorTypes } from "../../../../../interfaces/shared/apis/errors";
 import { ErrorResponseAPIBase } from "../../../../../interfaces/shared/apis/types";
 
 /**
