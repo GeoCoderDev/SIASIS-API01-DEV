@@ -23,4 +23,5 @@ export interface ErrorResponseAPIBase extends ApiResponseBase {
   success: false;
   details?: ErrorDetails;
   errorType?: AllErrorTypes;
+  conflictField?: string;
 }
