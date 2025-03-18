@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { RolesSistema } from "../interfaces/shared/RolesSistema";
-import { RequestErrorTypes } from "../interfaces/shared/apis/errors/RequestErrorTypes";
+import { RequestErrorTypes } from "../interfaces/shared/apis/errors";
+import { ErrorResponseAPIBase } from "../interfaces/shared/apis/types";
 
 /**
  * Verifica si se recibieron todos los parámetros de consulta obligatorios
@@ -23,10 +24,11 @@ const wereObligatoryQueryParamsReceived = (requiredParams: string[]) => {
       return res.status(400).json({
         success: false,
         message: `Faltan parámetros obligatorios: ${missingParams.join(", ")}`,
+        errorType: RequestErrorTypes.MISSING_PARAMETERS,
         missingParams,
-      });
+      } as ErrorResponseAPIBase);
     }
-    
+
     //Si se recibio el query param de Rol entonces debe ser uno de los siguientes 6 roles si o si
     if (
       req.query.Rol &&

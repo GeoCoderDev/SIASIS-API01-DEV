@@ -7,11 +7,14 @@ import {
   JWTPayload,
   ProfesorTutorSecundariaAuthenticated,
 } from "../interfaces/JWTPayload";
-import { TokenErrorTypes } from "../interfaces/shared/apis/errors/TokenErrorTypes";
-import { UserErrorTypes } from "../interfaces/shared/apis/errors/UserErrorTypes";
-import { PermissionErrorTypes } from "../interfaces/shared/apis/errors/PermissionErrorTypes";
-import { SystemErrorTypes } from "../interfaces/shared/apis/errors/SystemErrorTypes";
+
 import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/details";
+import {
+  PermissionErrorTypes,
+  SystemErrorTypes,
+  TokenErrorTypes,
+  UserErrorTypes,
+} from "../interfaces/shared/apis/errors";
 
 const prisma = new PrismaClient();
 

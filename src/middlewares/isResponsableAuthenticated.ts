@@ -4,10 +4,12 @@ import { RolesSistema } from "../interfaces/shared/RolesSistema";
 import { PrismaClient } from "@prisma/client";
 import { verificarBloqueoRol } from "../lib/helpers/verificators/verificarBloqueoRol";
 import { JWTPayload, ResponsableAuthenticated } from "../interfaces/JWTPayload";
-import { TokenErrorTypes } from "../interfaces/shared/apis/errors/TokenErrorTypes";
-import { SystemErrorTypes } from "../interfaces/shared/apis/errors/SystemErrorTypes";
-import { UserErrorTypes } from "../interfaces/shared/apis/errors/UserErrorTypes";
 import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/details";
+import {
+  SystemErrorTypes,
+  TokenErrorTypes,
+  UserErrorTypes,
+} from "../interfaces/shared/apis/errors";
 
 const prisma = new PrismaClient();
 

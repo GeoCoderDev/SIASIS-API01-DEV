@@ -21,8 +21,7 @@ import isPersonalAdministrativoAuthenticated from "../../../middlewares/isPerson
 // import isResponsableAuthenticated from "../../../middlewares/isResponsableAuthenticated";
 import checkAuthentication from "../../../middlewares/checkAuthentication";
 import { RolesTexto } from "../../../../assets/RolesTextosEspañol";
-import { TokenErrorTypes } from "../../../interfaces/shared/apis/errors/TokenErrorTypes";
-import { RequestErrorTypes } from "../../../interfaces/shared/apis/errors/RequestErrorTypes";
+
 import {
   ActualizarUsuarioSuccessResponseAPI01,
   MisDatosDirectivo,
@@ -34,8 +33,7 @@ import {
   MisDatosTutor,
   ObtenerMisDatosSuccessAPI01Data,
 } from "../../../interfaces/shared/apis/api01/mis-datos/types";
-import { UserErrorTypes } from "../../../interfaces/shared/apis/errors/UserErrorTypes";
-import { SystemErrorTypes } from "../../../interfaces/shared/apis/errors/SystemErrorTypes";
+
 import { MisDatosAuxiliar } from "../../../interfaces/shared/apis/api01/mis-datos/types";
 import { validateDNI } from "../../../lib/helpers/validators/data/validateDNI";
 import { validateNames } from "../../../lib/helpers/validators/data/validateNombres";
@@ -47,6 +45,13 @@ import { validateEmail } from "../../../lib/helpers/validators/data/validateCorr
 import { validateData } from "../../../lib/helpers/validators/data/validateData";
 import { handlePrismaError } from "../../../lib/helpers/handlers/errors/prisma";
 import { ErrorResponseAPIBase } from "../../../interfaces/shared/apis/types";
+import miContraseñaRouter from "./mi-contrasena";
+import {
+  RequestErrorTypes,
+  SystemErrorTypes,
+  TokenErrorTypes,
+  UserErrorTypes,
+} from "../../../interfaces/shared/apis/errors";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -509,7 +514,6 @@ router.put(
         DNI_Profesor_Primaria: "DNI",
         DNI_Profesor_Secundaria: "DNI",
         DNI_Personal_Administrativo: "DNI",
-        DNI_Responsable: "DNI",
       });
       if (handledError) {
         return res.status(handledError.status).json(handledError.response);
@@ -525,4 +529,7 @@ router.put(
     }
   }) as any
 );
+
+router.use("/mi-contrasena", miContraseñaRouter);
+
 export default router;
