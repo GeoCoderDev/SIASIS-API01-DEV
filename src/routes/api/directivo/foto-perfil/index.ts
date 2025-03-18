@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { Request, Response, Router } from "express";
 import multer from "multer";
-import { validateImageType } from "../../../../lib/helpers/validators/validateImageType";
+import { validateImageType } from "../../../../lib/helpers/validators/images/validateImageType";
 import { validateFileSize } from "../../../../lib/helpers/validators/validateFileSize";
 import { google } from "googleapis";
 import { deleteFileFromDrive } from "../../../../lib/helpers/functions/GoogleDrive/deleteFileFromDrive";
