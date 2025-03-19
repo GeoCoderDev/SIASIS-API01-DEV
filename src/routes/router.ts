@@ -1,7 +1,11 @@
 // routes/index.ts
 import { Router } from "express";
 import loginRouter from "./api/login";
+<<<<<<< HEAD
 
+=======
+import directivoRouter from "./api/directivo";
+>>>>>>> e45d1bcaed99d651f98de1b356752afde81b9965
 import misDatosRouter from "./api/mis-datos";
 import { UserAuthenticatedAPI01 } from "../interfaces/JWTPayload";
 import AllErrorTypes from "../interfaces/shared/apis/errors";
@@ -25,6 +29,10 @@ declare global {
 }
 
 router.use("/login", loginRouter);
+<<<<<<< HEAD
+=======
+router.use("/directivo", directivoRouter);
+>>>>>>> e45d1bcaed99d651f98de1b356752afde81b9965
 router.use("/mis-datos", misDatosRouter);
 
 export default router;
