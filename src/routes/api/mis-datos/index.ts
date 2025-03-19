@@ -46,6 +46,7 @@ import { validateData } from "../../../lib/helpers/validators/data/validateData"
 import { handlePrismaError } from "../../../lib/helpers/handlers/errors/prisma";
 import { ErrorResponseAPIBase } from "../../../interfaces/shared/apis/types";
 import miContraseñaRouter from "./mi-contrasena";
+import miFotoDePerfilRouter from "./mi-foto-perfil";
 import {
   RequestErrorTypes,
   SystemErrorTypes,
@@ -531,5 +532,7 @@ router.put(
 );
 
 router.use("/mi-contrasena", miContraseñaRouter);
+
+router.use("/mi-foto-perfil", miFotoDePerfilRouter)
 
 export default router;

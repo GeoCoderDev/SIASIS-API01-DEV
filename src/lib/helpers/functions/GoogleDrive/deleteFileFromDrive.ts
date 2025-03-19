@@ -1,49 +1,32 @@
-import { google } from 'googleapis';
+import { getDriveClient } from "./getDriveClient";
 
-/**
- * Elimina un archivo de Google Drive por su ID
- * @param fileId ID del archivo en Google Drive
- * @param oauth2Client Cliente OAuth2 configurado
- * @returns true si se eliminó correctamente, false si no se encontró o hubo un error
- */
-export async function deleteFileFromDrive(
-  fileId: string | null | undefined,
-  oauth2Client: any
-): Promise<boolean> {
+// Función para eliminar un archivo de Google Drive
+export async function deleteFileFromDrive(fileId: string | null | undefined) {
   // Si no hay ID, no hay nada que eliminar
   if (!fileId) {
     return false;
   }
 
   try {
-    // Crear cliente de Google Drive
-    const drive = google.drive({
-      version: 'v3',
-      auth: oauth2Client,
-    });
+    const drive = await getDriveClient();
 
-    // Verificar si el archivo existe
+    // Verificar si el archivo existe antes de intentar eliminarlo
     try {
       await drive.files.get({
         fileId: fileId,
-        fields: 'id'
+        fields: "id",
       });
     } catch (error) {
-      // Si el archivo no existe, retornar false sin lanzar error
       console.log(`El archivo con ID ${fileId} no existe en Google Drive`);
       return false;
     }
 
-    // Eliminar el archivo
-    await drive.files.delete({
-      fileId: fileId
-    });
-
+    await drive.files.delete({ fileId });
     console.log(`Archivo con ID ${fileId} eliminado con éxito`);
     return true;
   } catch (error) {
-    console.error('Error al eliminar archivo de Google Drive:', error);
-    // No relanzamos el error para que el flujo pueda continuar
+    console.error("Error al eliminar archivo de Google Drive:", error);
+    // No lanzamos el error para permitir que el flujo continúe
     return false;
   }
 }

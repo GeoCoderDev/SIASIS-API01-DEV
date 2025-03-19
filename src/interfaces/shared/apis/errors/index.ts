@@ -65,6 +65,14 @@ export enum DataConflictErrorTypes {
   DATABASE_CONSTRAINT = "CONFLICTO_RESTRICCIÓN_BASE_DATOS",
 }
 
+export enum FileErrorTypes {
+  FILE_MISSING = "FILE_MISSING",
+  INVALID_FILE_TYPE = "INVALID_FILE_TYPE",
+  FILE_TOO_LARGE = "FILE_TOO_LARGE",
+  FILE_UPLOAD_FAILED = "FILE_UPLOAD_FAILED",
+  FILE_DELETE_FAILED = "FILE_DELETE_FAILED",
+}
+
 type AllErrorTypes =
   | RequestErrorTypes
   | TokenErrorTypes
@@ -72,6 +80,7 @@ type AllErrorTypes =
   | PermissionErrorTypes
   | SystemErrorTypes
   | ValidationErrorTypes
-  | DataConflictErrorTypes;
+  | DataConflictErrorTypes
+  | FileErrorTypes;
 
 export default AllErrorTypes;
