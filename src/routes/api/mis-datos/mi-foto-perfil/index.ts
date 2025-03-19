@@ -31,6 +31,7 @@ import {
 import { handlePrismaError } from "../../../../lib/helpers/handlers/errors/prisma";
 import { deleteFileFromDrive } from "../../../../lib/helpers/functions/GoogleDrive/deleteFileFromDrive";
 import { uploadFileToDrive } from "../../../../lib/helpers/functions/GoogleDrive/uploadFileToDrive";
+import { CambiarFotoPerfilSuccessResponse } from "../../../../interfaces/shared/apis/shared/mis-datos/mi-foto-perfil/types";
 
 // Definimos un nuevo enum para errores relacionados con archivos/imágenes
 export enum FileErrorTypes {
@@ -39,16 +40,6 @@ export enum FileErrorTypes {
   FILE_TOO_LARGE = "FILE_TOO_LARGE",
   FILE_UPLOAD_FAILED = "FILE_UPLOAD_FAILED",
   FILE_DELETE_FAILED = "FILE_DELETE_FAILED",
-}
-
-// Interfaces para las respuestas
-interface CambiarFotoPerfilSuccessResponse {
-  success: true;
-  message: string;
-  data: {
-    fileId: string;
-    fileUrl: string;
-  };
 }
 
 const router = Router();
