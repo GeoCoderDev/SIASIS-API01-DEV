@@ -12,6 +12,7 @@ import isAuxiliarAuthenticated from "../../../../middlewares/isAuxiliarAuthentic
 import checkAuthentication from "../../../../middlewares/checkAuthentication";
 import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
 import {
+  FileErrorTypes,
   RequestErrorTypes,
   SystemErrorTypes,
   TokenErrorTypes,
@@ -32,15 +33,6 @@ import { handlePrismaError } from "../../../../lib/helpers/handlers/errors/prism
 import { deleteFileFromDrive } from "../../../../lib/helpers/functions/GoogleDrive/deleteFileFromDrive";
 import { uploadFileToDrive } from "../../../../lib/helpers/functions/GoogleDrive/uploadFileToDrive";
 import { CambiarFotoPerfilSuccessResponse } from "../../../../interfaces/shared/apis/shared/mis-datos/mi-foto-perfil/types";
-
-// Definimos un nuevo enum para errores relacionados con archivos/imágenes
-export enum FileErrorTypes {
-  FILE_MISSING = "FILE_MISSING",
-  INVALID_FILE_TYPE = "INVALID_FILE_TYPE",
-  FILE_TOO_LARGE = "FILE_TOO_LARGE",
-  FILE_UPLOAD_FAILED = "FILE_UPLOAD_FAILED",
-  FILE_DELETE_FAILED = "FILE_DELETE_FAILED",
-}
 
 const router = Router();
 const prisma = new PrismaClient();

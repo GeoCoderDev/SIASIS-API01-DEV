@@ -74,6 +74,7 @@ export enum FileErrorTypes {
   FILE_DELETE_FAILED = "FILE_DELETE_FAILED",
 }
 
+
 type AllErrorTypes =
   | RequestErrorTypes
   | TokenErrorTypes
