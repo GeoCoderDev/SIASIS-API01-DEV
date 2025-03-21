@@ -39,6 +39,7 @@ export enum PermissionErrorTypes {
  * Errores técnicos del sistema
  */
 export enum SystemErrorTypes {
+  EXTERNAL_SERVICE_ERROR = "EXTERNAL_SERVICE_ERROR",
   DATABASE_ERROR = "DATABASE_ERROR", // Error al conectar con la base de datos
   UNKNOWN_ERROR = "UNKNOWN_ERROR", // Error desconocido
 }

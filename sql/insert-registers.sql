@@ -1,4 +1,3 @@
-
 -- Insertar directivos en una sola consulta
 INSERT INTO "T_Directivos" 
 ("Id_Directivo", "Nombres", "Apellidos", "Genero", "DNI", "Nombre_Usuario", "Correo_Electronico", "Celular", "Contraseña", "Google_Drive_Foto_ID")
@@ -6,8 +5,7 @@ VALUES
 (1, 'Elena Serafina', 'Culanco Escolco', 'F', '00156433', 'director.asuncion8', 'elena.culanco@ie20935.edu.pe', '989729659', '4eba4c4db1520ba8d1845f06c6f71daf:7a886b91d9d08452729ccb90b5f1d90f', NULL),
 (2, 'María Luisa', 'Martínez Quispe', 'F', '45674545', 'subdirector.asuncion8', 'marialuisa.martinez@ie20935.edu.pe', '955309963', '4eba4c4db1520ba8d1845f06c6f71daf:7a886b91d9d08452729ccb90b5f1d90f', NULL);
 
-
--- Insertar 10 profesores de primaria en la base de datos
+-- Insertar 12 profesores de primaria en la base de datos
 INSERT INTO "T_Profesores_Primaria" 
 ("DNI_Profesor_Primaria", "Nombres", "Apellidos", "Genero", "Nombre_Usuario", "Estado", "Correo_Electronico", "Celular", "Contraseña", "Google_Drive_Foto_ID")
 VALUES
@@ -20,8 +18,9 @@ VALUES
 ('45678907', 'Isabel', 'Díaz Morales', 'F', 'isabel_diaz_4567', TRUE, 'isabel.diaz@educacion.com', '987654327', '247e8f7b95419d077e4430689e358928:9527745e34ff43adea0fd45f89648c00', NULL),
 ('45678908', 'Roberto', 'Vargas Herrera', 'M', 'roberto_vargas_4567', TRUE, 'roberto.vargas@educacion.com', '987654328', '247e8f7b95419d077e4430689e358928:9527745e34ff43adea0fd45f89648c00', NULL),
 ('45678909', 'Carmen', 'Ortega Campos', 'F', 'carmen_ortega_4567', TRUE, 'carmen.ortega@educacion.com', '987654329', '247e8f7b95419d077e4430689e358928:9527745e34ff43adea0fd45f89648c00', NULL),
-('45678910', 'Miguel', 'Reyes Miranda', 'M', 'miguel_reyes_4567', TRUE, 'miguel.reyes@educacion.com', '987654330', '247e8f7b95419d077e4430689e358928:9527745e34ff43adea0fd45f89648c00', NULL);
-
+('45678910', 'Miguel', 'Reyes Miranda', 'M', 'miguel_reyes_4567', TRUE, 'miguel.reyes@educacion.com', '987654330', '247e8f7b95419d077e4430689e358928:9527745e34ff43adea0fd45f89648c00', NULL),
+('45678911', 'Daniela', 'Vega Campos', 'F', 'daniela_vega_4567', TRUE, 'daniela.vega@educacion.com', '987654331', '247e8f7b95419d077e4430689e358928:9527745e34ff43adea0fd45f89648c00', NULL),
+('45678912', 'Andrés', 'Núñez Prado', 'M', 'andres_nunez_4567', TRUE, 'andres.nunez@educacion.com', '987654332', '247e8f7b95419d077e4430689e358928:9527745e34ff43adea0fd45f89648c00', NULL);
 
 -- Insertar 2 auxiliares en la base de datos
 INSERT INTO "T_Auxiliares" 
@@ -29,8 +28,6 @@ INSERT INTO "T_Auxiliares"
 VALUES
 ('34567801', 'Rosa', 'Mendoza Valdivia', 'F', 'rosa.mendoza', TRUE, 'rosa.mendoza@escuela.edu.pe', '956781234', '94c121b9e7bf08a65154b8af0b2a31fe:acf3495f8f56715a4893bc66d4312ef9', NULL),
 ('34567802', 'Fernando', 'Gutiérrez Pérez', 'M', 'fernando.gutierrez', TRUE, 'fernando.gutierrez@escuela.edu.pe', '956781235', '94c121b9e7bf08a65154b8af0b2a31fe:acf3495f8f56715a4893bc66d4312ef9', NULL);
-
-
 
 -- Insertar 12 profesores de secundaria en la base de datos
 INSERT INTO "T_Profesores_Secundaria" 
@@ -49,16 +46,46 @@ VALUES
 ('56789011', 'Ricardo', 'Velásquez Rojas', 'M', 'ricardo_velasquez_5678', TRUE, 'ricardo.velasquez@secundaria.edu.pe', '912345688', 'k87p5l9n3176:m23ok03np05k2p1p21k7nm6o878361oo1o1o0o81ok86l2p8o45o9lkp865', NULL),
 ('56789012', 'Natalia', 'Zegarra Díaz', 'F', 'natalia_zegarra_5678', TRUE, 'natalia.zegarra@secundaria.edu.pe', '912345689', 'l98q6m0o4287:n34pl14oq16l3q2q32l8on7p989472pp2p2p1p92pl97m3q9p56p0mlq976', NULL);
 
+-- Crear aulas de primaria (2 secciones por grado excepto 6to que tiene solo 1)
+INSERT INTO "T_Aulas" 
+("Nivel", "Grado", "Seccion", "Color", "DNI_Profesor_Primaria")
+VALUES
+-- Primer grado de primaria
+('PRIMARIA', 1, 'A', '#4287f5', '45678901'),
+('PRIMARIA', 1, 'B', '#42f56f', '45678902'),
+-- Segundo grado de primaria
+('PRIMARIA', 2, 'A', '#f54242', '45678903'),
+('PRIMARIA', 2, 'B', '#f5d442', '45678904'),
+-- Tercer grado de primaria
+('PRIMARIA', 3, 'A', '#9942f5', '45678905'),
+('PRIMARIA', 3, 'B', '#f542b3', '45678906'),
+-- Cuarto grado de primaria
+('PRIMARIA', 4, 'A', '#42f5e7', '45678907'),
+('PRIMARIA', 4, 'B', '#86f542', '45678908'),
+-- Quinto grado de primaria
+('PRIMARIA', 5, 'A', '#f58a42', '45678909'),
+('PRIMARIA', 5, 'B', '#4249f5', '45678910'),
+-- Sexto grado de primaria (solo una sección)
+('PRIMARIA', 6, 'A', '#f5426f', '45678911');
 
--- Crear 4 aulas y asignarlas a 4 profesores diferentes
+-- Crear aulas de secundaria (2 secciones por grado excepto 5to que tiene solo 1)
 INSERT INTO "T_Aulas" 
 ("Nivel", "Grado", "Seccion", "Color", "DNI_Profesor_Secundaria")
 VALUES
-('SECUNDARIA', 1, 'A', '#4287f5', '56789001'), -- Aula 1 asignada a Javier Martínez
-('SECUNDARIA', 2, 'B', '#42f56f', '56789003'), -- Aula 2 asignada a Luis Patiño
-('SECUNDARIA', 3, 'A', '#f54242', '56789005'), -- Aula 3 asignada a Raúl Torres
-('SECUNDARIA', 4, 'B', '#f5d442', '56789007'); -- Aula 4 asignada a Eduardo Campos
-
+-- Primer grado de secundaria
+('SECUNDARIA', 1, 'A', '#4287f5', '56789001'),
+('SECUNDARIA', 1, 'B', '#42f56f', '56789002'),
+-- Segundo grado de secundaria
+('SECUNDARIA', 2, 'A', '#f54242', '56789003'),
+('SECUNDARIA', 2, 'B', '#f5d442', '56789004'),
+-- Tercer grado de secundaria
+('SECUNDARIA', 3, 'A', '#9942f5', '56789005'),
+('SECUNDARIA', 3, 'B', '#f542b3', '56789006'),
+-- Cuarto grado de secundaria
+('SECUNDARIA', 4, 'A', '#42f5e7', '56789007'),
+('SECUNDARIA', 4, 'B', '#86f542', '56789008'),
+-- Quinto grado de secundaria (solo una sección)
+('SECUNDARIA', 5, 'A', '#f58a42', '56789009');
 
 -- Insertar 2 registros de personal administrativo en la base de datos
 INSERT INTO "T_Personal_Administrativo" 
@@ -66,21 +93,6 @@ INSERT INTO "T_Personal_Administrativo"
 VALUES
 ('23456789', 'Silvia', 'Ramírez Vargas', 'F', 'silvia.ramirez', TRUE, '934567890', '1364af80ac1ed4ca4a4261480eb21e84:11d9eb52493155130bdb61d232f4dbb4', NULL, '07:30:00', '15:30:00'),
 ('23456790', 'Alberto', 'Gómez Palacios', 'M', 'alberto.gomez', TRUE, '934567891', '1364af80ac1ed4ca4a4261480eb21e84:11d9eb52493155130bdb61d232f4dbb4', NULL, '08:00:00', '16:00:00');
-
-
-
--- -- Insertar 7 registros para la tabla T_Bloqueo_Roles
--- INSERT INTO "T_Bloqueo_Roles" 
--- ("Id_Bloqueo_Rol", "Rol", "Bloqueo_Total", "Timestamp_Desbloqueo")
--- VALUES
--- (1, 'D', FALSE, EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP + INTERVAL '24 hours'))), -- Directivo (desbloqueado en 24 horas)
--- (2, 'A', FALSE, EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP + INTERVAL '12 hours'))), -- Auxiliar (desbloqueado en 12 horas)
--- (3, 'PP', FALSE, EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP + INTERVAL '8 hours'))), -- Profesor Primaria (desbloqueado en 8 horas)
--- (4, 'PS', FALSE, EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP + INTERVAL '6 hours'))), -- Profesor Secundaria (desbloqueado en 6 horas)
--- (5, 'TS', FALSE, EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP + INTERVAL '4 hours'))), -- Tutor Secundaria (desbloqueado en 4 horas)
--- (6, 'R', FALSE, EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP + INTERVAL '2 hours'))), -- Responsable (desbloqueado en 2 horas)
--- (7, 'PA', FALSE, EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP + INTERVAL '48 hours'))); -- Personal Administrativo (desbloqueado en 48 horas)
-
 
 -- Insertar 7 registros para la tabla T_Bloqueo_Roles sin bloqueos activos
 INSERT INTO "T_Bloqueo_Roles" 
@@ -93,7 +105,6 @@ VALUES
 (5, 'TS', FALSE, 0), -- Tutor Secundaria (sin bloqueo)
 (6, 'R', FALSE, 0), -- Responsable (sin bloqueo)
 (7, 'PA', FALSE, 0); -- Personal Administrativo (sin bloqueo)
-
 
 -- Inserción de datos en la tabla T_Horarios_Asistencia
 INSERT INTO "T_Horarios_Asistencia" ("Nombre", "Valor", "Descripcion", "Ultima_Modificacion") VALUES
