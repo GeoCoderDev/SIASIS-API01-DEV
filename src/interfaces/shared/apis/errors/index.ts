@@ -4,6 +4,7 @@
 export enum RequestErrorTypes {
   INVALID_PARAMETERS = "INVALID_PARAMETERS",
   MISSING_PARAMETERS = "MISSING_PARAMETERS",
+  REQUEST_FAILED = "REQUEST_FAILED",
 }
 
 /**
@@ -57,6 +58,7 @@ export enum ValidationErrorTypes {
   STRING_TOO_LONG = "STRING_TOO_LONG",
   FIELD_REQUIRED = "FIELD_REQUIRED",
   INVALID_FORMAT = "INVALID_FORMAT",
+  REQUIRED_FIELDS = "REQUIRED_FIELDS",
 }
 
 export enum DataConflictErrorTypes {
@@ -74,6 +76,14 @@ export enum FileErrorTypes {
   FILE_DELETE_FAILED = "FILE_DELETE_FAILED",
 }
 
+export enum AuthenticationErrorTypes {
+  MAX_ATTEMPTS_EXCEEDED = "MAX_ATTEMPTS_EXCEEDED",
+  VERIFICATION_FAILED = "VERIFICATION_FAILED",
+  CHALLENGE_REQUIRED = "CHALLENGE_REQUIRED",
+  OTP_INVALID = "OTP_INVALID",
+  ACCOUNT_LOCKED = "ACCOUNT_LOCKED",
+  TEMPORARY_BLOCKED = "TEMPORARY_BLOCKED",
+}
 
 type AllErrorTypes =
   | RequestErrorTypes
@@ -83,6 +93,7 @@ type AllErrorTypes =
   | SystemErrorTypes
   | ValidationErrorTypes
   | DataConflictErrorTypes
-  | FileErrorTypes;
-
+  | FileErrorTypes
+  | AuthenticationErrorTypes;
+  
 export default AllErrorTypes;
