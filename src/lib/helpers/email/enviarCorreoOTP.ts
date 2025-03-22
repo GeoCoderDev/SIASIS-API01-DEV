@@ -1,5 +1,6 @@
 // lib/helpers/email/enviarCorreoOTP.ts
 import nodemailer from "nodemailer";
+import { OTP_CODE_FOR_UPDATING_EMAIL_MINUTES } from "../../../constants/expirations";
 
 /**
  * Función para enviar correo electrónico con código OTP para verificación
@@ -211,7 +212,8 @@ export async function enviarCorreoOTP(
       <body>
         <div class="container">
           <div class="header">
-            <img src="https://drive.google.com/thumbnail?id=${process.env.LOGO_GOOGLE_DRIVE_IMAGE_ID!}" alt="Logo I.E. 20935 Asunción 8" class="logo">
+            <img src="https://drive.google.com/thumbnail?id=${process.env
+              .LOGO_GOOGLE_DRIVE_IMAGE_ID!}" alt="Logo I.E. 20935 Asunción 8" class="logo">
             <h1 class="title">Verificación de correo electrónico</h1>
             <p class="subtitle">I.E. 20935 Asunción 8</p>
           </div>
@@ -229,7 +231,7 @@ export async function enviarCorreoOTP(
           </div>
           
           <div class="time-info">
-            <p>Este código expirará en <span class="highlight">30 minutos</span>.</p>
+            <p>Este código expirará en <span class="highlight">${OTP_CODE_FOR_UPDATING_EMAIL_MINUTES} minutos</span>.</p>
           </div>
           
           <div class="message">

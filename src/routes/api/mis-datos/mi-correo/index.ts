@@ -29,6 +29,7 @@ import {
   CambiarCorreoSuccessResponse,
   ConfirmarCorreoRequestBody,
 } from "../../../../interfaces/shared/apis/api01/mis-datos/cambiar-correo/types";
+import { OTP_CODE_FOR_UPDATING_EMAIL_MINUTES } from "../../../../constants/expirations";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -155,7 +156,9 @@ router.put(
 
       // Calcular tiempo de expiración (5 minutos desde ahora)
       const fechaExpiracion = new Date();
-      fechaExpiracion.setMinutes(fechaExpiracion.getMinutes() + 5);
+      fechaExpiracion.setMinutes(
+        fechaExpiracion.getMinutes() + OTP_CODE_FOR_UPDATING_EMAIL_MINUTES
+      );
 
       // Guardar código OTP en la base de datos
       await prisma.t_Codigos_OTP.create({
