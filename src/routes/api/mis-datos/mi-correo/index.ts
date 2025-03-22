@@ -153,9 +153,9 @@ router.put(
       // Generar código OTP
       const codigoOTP = generarCodigoOTP();
 
-      // Calcular tiempo de expiración (30 minutos desde ahora)
+      // Calcular tiempo de expiración (5 minutos desde ahora)
       const fechaExpiracion = new Date();
-      fechaExpiracion.setMinutes(fechaExpiracion.getMinutes() + 30);
+      fechaExpiracion.setMinutes(fechaExpiracion.getMinutes() + 5);
 
       // Guardar código OTP en la base de datos
       await prisma.t_Codigos_OTP.create({
