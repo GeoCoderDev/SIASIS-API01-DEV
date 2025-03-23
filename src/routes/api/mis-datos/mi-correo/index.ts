@@ -154,18 +154,17 @@ router.put(
       // Generar código OTP
       const codigoOTP = generarCodigoOTP();
 
-      // Calcular tiempo de expiración (5 minutos desde ahora)
-      const fechaExpiracion = new Date();
-      fechaExpiracion.setMinutes(
-        fechaExpiracion.getMinutes() + OTP_CODE_FOR_UPDATING_EMAIL_MINUTES
-      );
+      // Timestamp actual en milisegundos
+      const ahora = Date.now();
+      
+      // Calcular tiempo de expiración (minutos desde ahora en milisegundos)
+      const fechaExpiracion = ahora + (OTP_CODE_FOR_UPDATING_EMAIL_MINUTES * 60 * 1000);
 
-      // Guardar código OTP en la base de datos
+      // Guardar código OTP en la base de datos usando timestamps Unix
       await prisma.t_Codigos_OTP.create({
         data: {
           Codigo: codigoOTP,
-          Fecha_Creacion: new Date(), // La fecha actual
-          // Guardamos el correo nuevo y el ID del usuario para la verificación posterior
+          Fecha_Creacion: ahora,
           Correo_Destino: nuevoCorreo,
           Rol_Usuario: userRole,
           Id_Usuario:
@@ -180,9 +179,9 @@ router.put(
       // Enviar correo electrónico con el código OTP
       await enviarCorreoOTP(nuevoCorreo, codigoOTP, nombreCompleto);
 
-      // Calcular tiempo de expiración en segundos
+      // Calcular tiempo de expiración en segundos (desde timestamp en ms)
       const tiempoExpiracionSegundos = Math.floor(
-        (fechaExpiracion.getTime() - Date.now()) / 1000
+        (fechaExpiracion - ahora) / 1000
       );
 
       return res.status(200).json({
@@ -284,7 +283,10 @@ router.post(
           : (userData as ProfesorTutorSecundariaAuthenticated)
               .DNI_Profesor_Secundaria;
 
-      // Buscar el código OTP en la base de datos
+      // Timestamp actual
+      const ahora = Date.now();
+
+      // Buscar el código OTP en la base de datos comparando timestamps
       const codigoOTP = await prisma.t_Codigos_OTP.findFirst({
         where: {
           Codigo: codigo,
@@ -292,7 +294,7 @@ router.post(
           Rol_Usuario: userRole,
           Id_Usuario: idUsuario,
           Fecha_Expiracion: {
-            gte: new Date(), // No ha expirado
+            gte: ahora, // No ha expirado (timestamp actual es menor que expiración)
           },
         },
       });

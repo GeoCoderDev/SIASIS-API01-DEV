@@ -51,41 +51,41 @@ INSERT INTO "T_Aulas"
 ("Nivel", "Grado", "Seccion", "Color", "DNI_Profesor_Primaria")
 VALUES
 -- Primer grado de primaria
-('PRIMARIA', 1, 'A', '#4287f5', '45678901'),
-('PRIMARIA', 1, 'B', '#42f56f', '45678902'),
+('P', 1, 'A', '#4287f5', '45678901'),
+('P', 1, 'B', '#42f56f', '45678902'),
 -- Segundo grado de primaria
-('PRIMARIA', 2, 'A', '#f54242', '45678903'),
-('PRIMARIA', 2, 'B', '#f5d442', '45678904'),
+('P', 2, 'A', '#f54242', '45678903'),
+('P', 2, 'B', '#f5d442', '45678904'),
 -- Tercer grado de primaria
-('PRIMARIA', 3, 'A', '#9942f5', '45678905'),
-('PRIMARIA', 3, 'B', '#f542b3', '45678906'),
+('P', 3, 'A', '#9942f5', '45678905'),
+('P', 3, 'B', '#f542b3', '45678906'),
 -- Cuarto grado de primaria
-('PRIMARIA', 4, 'A', '#42f5e7', '45678907'),
-('PRIMARIA', 4, 'B', '#86f542', '45678908'),
+('P', 4, 'A', '#42f5e7', '45678907'),
+('P', 4, 'B', '#86f542', '45678908'),
 -- Quinto grado de primaria
-('PRIMARIA', 5, 'A', '#f58a42', '45678909'),
-('PRIMARIA', 5, 'B', '#4249f5', '45678910'),
+('P', 5, 'A', '#f58a42', '45678909'),
+('P', 5, 'B', '#4249f5', '45678910'),
 -- Sexto grado de primaria (solo una sección)
-('PRIMARIA', 6, 'A', '#f5426f', '45678911');
+('P', 6, 'A', '#f5426f', '45678911');
 
 -- Crear aulas de secundaria (2 secciones por grado excepto 5to que tiene solo 1)
 INSERT INTO "T_Aulas" 
 ("Nivel", "Grado", "Seccion", "Color", "DNI_Profesor_Secundaria")
 VALUES
 -- Primer grado de secundaria
-('SECUNDARIA', 1, 'A', '#4287f5', '56789001'),
-('SECUNDARIA', 1, 'B', '#42f56f', '56789002'),
+('S', 1, 'A', '#4287f5', '56789001'),
+('S', 1, 'B', '#42f56f', '56789002'),
 -- Segundo grado de secundaria
-('SECUNDARIA', 2, 'A', '#f54242', '56789003'),
-('SECUNDARIA', 2, 'B', '#f5d442', '56789004'),
+('S', 2, 'A', '#f54242', '56789003'),
+('S', 2, 'B', '#f5d442', '56789004'),
 -- Tercer grado de secundaria
-('SECUNDARIA', 3, 'A', '#9942f5', '56789005'),
-('SECUNDARIA', 3, 'B', '#f542b3', '56789006'),
+('S', 3, 'A', '#9942f5', '56789005'),
+('S', 3, 'B', '#f542b3', '56789006'),
 -- Cuarto grado de secundaria
-('SECUNDARIA', 4, 'A', '#42f5e7', '56789007'),
-('SECUNDARIA', 4, 'B', '#86f542', '56789008'),
+('S', 4, 'A', '#42f5e7', '56789007'),
+('S', 4, 'B', '#86f542', '56789008'),
 -- Quinto grado de secundaria (solo una sección)
-('SECUNDARIA', 5, 'A', '#f58a42', '56789009');
+('S', 5, 'A', '#f58a42', '56789009');
 
 -- Insertar 2 registros de personal administrativo en la base de datos
 INSERT INTO "T_Personal_Administrativo" 
