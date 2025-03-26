@@ -273,6 +273,7 @@ router.get(
               // Incluir horarios laborales para personal administrativo
               Horario_Laboral_Entrada: true,
               Horario_Laboral_Salida: true,
+              Cargo: true
             },
           })) as MisDatosPersonalAdministrativo;
 
