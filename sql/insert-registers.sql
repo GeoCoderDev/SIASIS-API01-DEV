@@ -88,11 +88,12 @@ VALUES
 ('S', 5, 'A', '#f58a42', '56789009');
 
 -- Insertar 2 registros de personal administrativo en la base de datos
+-- Insertar 2 registros de personal administrativo en la base de datos con el campo Cargo
 INSERT INTO "T_Personal_Administrativo" 
-("DNI_Personal_Administrativo", "Nombres", "Apellidos", "Genero", "Nombre_Usuario", "Estado", "Celular", "Contraseña", "Google_Drive_Foto_ID", "Horario_Laboral_Entrada", "Horario_Laboral_Salida")
+("DNI_Personal_Administrativo", "Nombres", "Apellidos", "Genero", "Nombre_Usuario", "Estado", "Celular", "Contraseña", "Google_Drive_Foto_ID", "Horario_Laboral_Entrada", "Horario_Laboral_Salida", "Cargo")
 VALUES
-('23456789', 'Silvia', 'Ramírez Vargas', 'F', 'silvia.ramirez', TRUE, '934567890', '1364af80ac1ed4ca4a4261480eb21e84:11d9eb52493155130bdb61d232f4dbb4', NULL, '07:30:00', '15:30:00'),
-('23456790', 'Alberto', 'Gómez Palacios', 'M', 'alberto.gomez', TRUE, '934567891', '1364af80ac1ed4ca4a4261480eb21e84:11d9eb52493155130bdb61d232f4dbb4', NULL, '08:00:00', '16:00:00');
+('23456789', 'Silvia', 'Ramírez Vargas', 'F', 'silvia.ramirez', TRUE, '934567890', '1364af80ac1ed4ca4a4261480eb21e84:11d9eb52493155130bdb61d232f4dbb4', NULL, '07:30:00', '15:30:00', 'Personal de Limpieza'),
+('23456790', 'Alberto', 'Gómez Palacios', 'M', 'alberto.gomez', TRUE, '934567891', '1364af80ac1ed4ca4a4261480eb21e84:11d9eb52493155130bdb61d232f4dbb4', NULL, '08:00:00', '16:00:00', 'Personal de Limpieza');
 
 -- Insertar 7 registros para la tabla T_Bloqueo_Roles sin bloqueos activos
 INSERT INTO "T_Bloqueo_Roles" 

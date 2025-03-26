@@ -1,5 +1,4 @@
 import { Request, Response, Router } from "express";
-import { PrismaClient } from "@prisma/client";
 import multer from "multer";
 
 import wereObligatoryQueryParamsReceived from "../../../../middlewares/wereObligatoryQueryParamsReceived";
@@ -16,7 +15,6 @@ import {
   RequestErrorTypes,
   SystemErrorTypes,
   TokenErrorTypes,
-  UserErrorTypes,
 } from "../../../../interfaces/shared/apis/errors";
 import { RolesTexto } from "../../../../../assets/RolesTextosEspañol";
 import { ErrorResponseAPIBase } from "../../../../interfaces/shared/apis/types";
@@ -30,12 +28,11 @@ import {
   ProfesorTutorSecundariaAuthenticated,
 } from "../../../../interfaces/JWTPayload";
 import { handlePrismaError } from "../../../../lib/helpers/handlers/errors/prisma";
-import { deleteFileFromDrive } from "../../../../lib/helpers/functions/GoogleDrive/deleteFileFromDrive";
-import { uploadFileToDrive } from "../../../../lib/helpers/functions/GoogleDrive/uploadFileToDrive";
+
 import { CambiarFotoPerfilSuccessResponse } from "../../../../interfaces/shared/apis/shared/mis-datos/mi-foto-perfil/types";
+import { subirFotoPerfil } from "../../../../lib/helpers/functions/subirFotoPerfil";
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // Configuración de Multer para almacenamiento en memoria
 const storage = multer.memoryStorage();
@@ -105,376 +102,33 @@ router.put(
         } as ErrorResponseAPIBase);
       }
 
-      // Generar nombre del archivo basado en el nombre de usuario y timestamp
-      let folderPath = "";
-      let fileName = "";
-      let googleDriveFotoID: string | null = null;
-
-      // Procesar según el rol
+      // Obtener el identificador según el rol
+      let identificador: string | number;
       switch (Rol) {
-        case RolesSistema.Directivo: {
-          const directivo = await prisma.t_Directivos.findUnique({
-            where: {
-              Id_Directivo: (userData as DirectivoAuthenticated).Id_Directivo,
-            },
-            select: {
-              Google_Drive_Foto_ID: true,
-              Nombre_Usuario: true,
-            },
-          });
-
-          if (!directivo) {
-            return res.status(404).json({
-              success: false,
-              message: "Directivo no encontrado",
-              errorType: UserErrorTypes.USER_NOT_FOUND,
-            } as ErrorResponseAPIBase);
-          }
-
-          googleDriveFotoID = directivo.Google_Drive_Foto_ID;
-          folderPath = "Fotos de Perfil/Directivos";
-          // Usar el nombre de usuario como nombre del archivo
-          fileName = `${directivo.Nombre_Usuario}.${
-            file.originalname.split(".").pop() || "png"
-          }`;
-
-          // Eliminar la foto anterior si existe
-          if (googleDriveFotoID) {
-            await deleteFileFromDrive(googleDriveFotoID);
-          }
-
-          // Subir el nuevo archivo
-          const uploadResult = await uploadFileToDrive(
-            file,
-            folderPath,
-            fileName
-          );
-
-          // Actualizar el registro en la base de datos
-          await prisma.t_Directivos.update({
-            where: {
-              Id_Directivo: (userData as DirectivoAuthenticated).Id_Directivo,
-            },
-            data: {
-              Google_Drive_Foto_ID: uploadResult.id,
-            },
-          });
-
-          // Responder con éxito
-          return res.status(200).json({
-            success: true,
-            message: "Foto de perfil actualizada correctamente",
-            data: {
-              fileId: uploadResult.id,
-              fileUrl: uploadResult.webContentLink || uploadResult.webViewLink,
-            },
-          } as CambiarFotoPerfilSuccessResponse);
-        }
-
-        case RolesSistema.Auxiliar: {
-          const auxiliar = await prisma.t_Auxiliares.findUnique({
-            where: {
-              DNI_Auxiliar: (userData as AuxiliarAuthenticated).DNI_Auxiliar,
-            },
-            select: {
-              Google_Drive_Foto_ID: true,
-              Nombre_Usuario: true,
-            },
-          });
-
-          if (!auxiliar) {
-            return res.status(404).json({
-              success: false,
-              message: "Auxiliar no encontrado",
-              errorType: UserErrorTypes.USER_NOT_FOUND,
-            } as ErrorResponseAPIBase);
-          }
-
-          googleDriveFotoID = auxiliar.Google_Drive_Foto_ID;
-          folderPath = "Fotos de Perfil/Auxiliares";
-          // Usar el nombre de usuario como nombre del archivo
-          fileName = `${auxiliar.Nombre_Usuario}.${
-            file.originalname.split(".").pop() || "png"
-          }`;
-
-          // Eliminar la foto anterior si existe
-          if (googleDriveFotoID) {
-            await deleteFileFromDrive(googleDriveFotoID);
-          }
-
-          // Subir el nuevo archivo
-          const uploadResult = await uploadFileToDrive(
-            file,
-            folderPath,
-            fileName
-          );
-
-          // Actualizar el registro en la base de datos
-          await prisma.t_Auxiliares.update({
-            where: {
-              DNI_Auxiliar: (userData as AuxiliarAuthenticated).DNI_Auxiliar,
-            },
-            data: {
-              Google_Drive_Foto_ID: uploadResult.id,
-            },
-          });
-
-          // Responder con éxito
-          return res.status(200).json({
-            success: true,
-            message: "Foto de perfil actualizada correctamente",
-            data: {
-              fileId: uploadResult.id,
-              fileUrl: uploadResult.webContentLink || uploadResult.webViewLink,
-            },
-          } as CambiarFotoPerfilSuccessResponse);
-        }
-
-        case RolesSistema.ProfesorPrimaria: {
-          const profesor = await prisma.t_Profesores_Primaria.findUnique({
-            where: {
-              DNI_Profesor_Primaria: (userData as ProfesorPrimariaAuthenticated)
-                .DNI_Profesor_Primaria,
-            },
-            select: {
-              Google_Drive_Foto_ID: true,
-              Nombre_Usuario: true,
-            },
-          });
-
-          if (!profesor) {
-            return res.status(404).json({
-              success: false,
-              message: "Profesor de primaria no encontrado",
-              errorType: UserErrorTypes.USER_NOT_FOUND,
-            } as ErrorResponseAPIBase);
-          }
-
-          googleDriveFotoID = profesor.Google_Drive_Foto_ID;
-          folderPath = "Fotos de Perfil/Profesores Primaria";
-          // Usar el nombre de usuario como nombre del archivo
-          fileName = `${profesor.Nombre_Usuario}.${
-            file.originalname.split(".").pop() || "png"
-          }`;
-
-          // Eliminar la foto anterior si existe
-          if (googleDriveFotoID) {
-            await deleteFileFromDrive(googleDriveFotoID);
-          }
-
-          // Subir el nuevo archivo
-          const uploadResult = await uploadFileToDrive(
-            file,
-            folderPath,
-            fileName
-          );
-
-          // Actualizar el registro en la base de datos
-          await prisma.t_Profesores_Primaria.update({
-            where: {
-              DNI_Profesor_Primaria: (userData as ProfesorPrimariaAuthenticated)
-                .DNI_Profesor_Primaria,
-            },
-            data: {
-              Google_Drive_Foto_ID: uploadResult.id,
-            },
-          });
-
-          // Responder con éxito
-          return res.status(200).json({
-            success: true,
-            message: "Foto de perfil actualizada correctamente",
-            data: {
-              fileId: uploadResult.id,
-              fileUrl: uploadResult.webContentLink || uploadResult.webViewLink,
-            },
-          } as CambiarFotoPerfilSuccessResponse);
-        }
-
+        case RolesSistema.Directivo:
+          identificador = (userData as DirectivoAuthenticated).Id_Directivo;
+          break;
+        case RolesSistema.Auxiliar:
+          identificador = (userData as AuxiliarAuthenticated).DNI_Auxiliar;
+          break;
+        case RolesSistema.ProfesorPrimaria:
+          identificador = (userData as ProfesorPrimariaAuthenticated)
+            .DNI_Profesor_Primaria;
+          break;
         case RolesSistema.ProfesorSecundaria:
-        case RolesSistema.Tutor: {
-          const profesor = await prisma.t_Profesores_Secundaria.findUnique({
-            where: {
-              DNI_Profesor_Secundaria: (
-                userData as ProfesorTutorSecundariaAuthenticated
-              ).DNI_Profesor_Secundaria,
-            },
-            select: {
-              Google_Drive_Foto_ID: true,
-              Nombre_Usuario: true,
-            },
-          });
-
-          if (!profesor) {
-            return res.status(404).json({
-              success: false,
-              message: `${
-                Rol === RolesSistema.Tutor ? "Tutor" : "Profesor de secundaria"
-              } no encontrado`,
-              errorType: UserErrorTypes.USER_NOT_FOUND,
-            } as ErrorResponseAPIBase);
-          }
-
-          googleDriveFotoID = profesor.Google_Drive_Foto_ID;
-          folderPath = "Fotos de Perfil/Profesores Secundaria";
-          // Usar el nombre de usuario como nombre del archivo
-          fileName = `${profesor.Nombre_Usuario}.${
-            file.originalname.split(".").pop() || "png"
-          }`;
-
-          // Eliminar la foto anterior si existe
-          if (googleDriveFotoID) {
-            await deleteFileFromDrive(googleDriveFotoID);
-          }
-
-          // Subir el nuevo archivo
-          const uploadResult = await uploadFileToDrive(
-            file,
-            folderPath,
-            fileName
-          );
-
-          // Actualizar el registro en la base de datos
-          await prisma.t_Profesores_Secundaria.update({
-            where: {
-              DNI_Profesor_Secundaria: (
-                userData as ProfesorTutorSecundariaAuthenticated
-              ).DNI_Profesor_Secundaria,
-            },
-            data: {
-              Google_Drive_Foto_ID: uploadResult.id,
-            },
-          });
-
-          // Responder con éxito
-          return res.status(200).json({
-            success: true,
-            message: "Foto de perfil actualizada correctamente",
-            data: {
-              fileId: uploadResult.id,
-              fileUrl: uploadResult.webContentLink || uploadResult.webViewLink,
-            },
-          } as CambiarFotoPerfilSuccessResponse);
-        }
-
-        case RolesSistema.PersonalAdministrativo: {
-          const personal = await prisma.t_Personal_Administrativo.findUnique({
-            where: {
-              DNI_Personal_Administrativo: (
-                userData as PersonalAdministrativoAuthenticated
-              ).DNI_Personal_Administrativo,
-            },
-            select: {
-              Google_Drive_Foto_ID: true,
-              Nombre_Usuario: true,
-            },
-          });
-
-          if (!personal) {
-            return res.status(404).json({
-              success: false,
-              message: "Personal administrativo no encontrado",
-              errorType: UserErrorTypes.USER_NOT_FOUND,
-            } as ErrorResponseAPIBase);
-          }
-
-          googleDriveFotoID = personal.Google_Drive_Foto_ID;
-          folderPath = "Fotos de Perfil/Personal Administrativo";
-          // Usar el nombre de usuario como nombre del archivo
-          fileName = `${personal.Nombre_Usuario}.${
-            file.originalname.split(".").pop() || "png"
-          }`;
-
-          // Eliminar la foto anterior si existe
-          if (googleDriveFotoID) {
-            await deleteFileFromDrive(googleDriveFotoID);
-          }
-
-          // Subir el nuevo archivo
-          const uploadResult = await uploadFileToDrive(
-            file,
-            folderPath,
-            fileName
-          );
-
-          // Actualizar el registro en la base de datos
-          await prisma.t_Personal_Administrativo.update({
-            where: {
-              DNI_Personal_Administrativo: (
-                userData as PersonalAdministrativoAuthenticated
-              ).DNI_Personal_Administrativo,
-            },
-            data: {
-              Google_Drive_Foto_ID: uploadResult.id,
-            },
-          });
-
-          // Responder con éxito
-          return res.status(200).json({
-            success: true,
-            message: "Foto de perfil actualizada correctamente",
-            data: {
-              fileId: uploadResult.id,
-              fileUrl: uploadResult.webContentLink || uploadResult.webViewLink,
-            },
-          } as CambiarFotoPerfilSuccessResponse);
-        }
-
+        case RolesSistema.Tutor:
+          identificador = (userData as ProfesorTutorSecundariaAuthenticated)
+            .DNI_Profesor_Secundaria;
+          break;
+        case RolesSistema.PersonalAdministrativo:
+          identificador = (userData as PersonalAdministrativoAuthenticated)
+            .DNI_Personal_Administrativo;
+          break;
         /* 
-        case RolesSistema.Responsable: {
-          const responsable = await prisma.t_Responsables.findUnique({
-            where: {
-              DNI_Responsable: (userData as ResponsableAuthenticated).DNI_Responsable,
-            },
-            select: {
-              Google_Drive_Foto_ID: true,
-              Nombre_Usuario: true,
-            },
-          });
-
-          if (!responsable) {
-            return res.status(404).json({
-              success: false,
-              message: "Responsable no encontrado",
-              errorType: UserErrorTypes.USER_NOT_FOUND,
-            } as ErrorResponseAPIBase);
-          }
-
-          googleDriveFotoID = responsable.Google_Drive_Foto_ID;
-          folderPath = "Fotos de Perfil/Responsables";
-          // Usar el nombre de usuario como nombre del archivo
-          fileName = `${responsable.Nombre_Usuario}.${file.originalname.split(".").pop() || "png"}`;
-
-          // Eliminar la foto anterior si existe
-          if (googleDriveFotoID) {
-            await deleteFileFromDrive(googleDriveFotoID);
-          }
-
-          // Subir el nuevo archivo
-          const uploadResult = await uploadFileToDrive(file, folderPath, fileName);
-
-          // Actualizar el registro en la base de datos
-          await prisma.t_Responsables.update({
-            where: {
-              DNI_Responsable: (userData as ResponsableAuthenticated).DNI_Responsable,
-            },
-            data: {
-              Google_Drive_Foto_ID: uploadResult.id,
-            },
-          });
-
-          // Responder con éxito
-          return res.status(200).json({
-            success: true,
-            message: "Foto de perfil actualizada correctamente",
-            data: {
-              fileId: uploadResult.id,
-              fileUrl: uploadResult.webContentLink || uploadResult.webViewLink,
-            },
-          } as CambiarFotoPerfilSuccessResponse);
-        }
+        case RolesSistema.Responsable:
+          identificador = (userData as ResponsableAuthenticated).DNI_Responsable;
+          break;
         */
-
         default:
           return res.status(400).json({
             success: false,
@@ -482,6 +136,26 @@ router.put(
             errorType: RequestErrorTypes.INVALID_PARAMETERS,
           } as ErrorResponseAPIBase);
       }
+
+      // Usar la función centralizada para subir la foto
+      const resultado = await subirFotoPerfil(Rol, file, identificador);
+
+      if (!resultado.success) {
+        return res.status(404).json({
+          success: false,
+          message: resultado.message,
+          errorType: resultado.errorType,
+        } as ErrorResponseAPIBase);
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: resultado.message,
+        data: {
+          fileId: resultado.fileId,
+          fileUrl: resultado.fileUrl,
+        },
+      } as CambiarFotoPerfilSuccessResponse);
     } catch (error) {
       console.error("Error al actualizar la foto de perfil:", error);
 

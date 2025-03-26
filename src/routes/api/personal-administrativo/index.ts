@@ -47,12 +47,12 @@ router.get("/", (async (req: Request, res: Response) => {
           Google_Drive_Foto_ID: true,
           Horario_Laboral_Entrada: true,
           Horario_Laboral_Salida: true,
+          Cargo: true,
         },
         orderBy: {
           Apellidos: "asc",
         },
       });
-
 
     return res.status(200).json({
       success: true,
@@ -112,6 +112,7 @@ router.get(
             Google_Drive_Foto_ID: true,
             Horario_Laboral_Entrada: true,
             Horario_Laboral_Salida: true,
+            Cargo: true,
           },
         });
 
@@ -206,7 +207,7 @@ router.patch(
       return res.status(200).json({
         success: true,
         message: `Personal administrativo ${statusMessage} exitosamente`,
-        data: updatedPersonal
+        data: updatedPersonal,
       } as SwitchEstadoPersonalAdministrativoSuccessResponse);
     } catch (error) {
       console.error(
