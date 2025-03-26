@@ -26,8 +26,8 @@ VALUES
 INSERT INTO "T_Auxiliares" 
 ("DNI_Auxiliar", "Nombres", "Apellidos", "Genero", "Nombre_Usuario", "Estado", "Correo_Electronico", "Celular", "Contraseña", "Google_Drive_Foto_ID")
 VALUES
-('34567801', 'Rosa', 'Mendoza Valdivia', 'F', 'rosa.mendoza', TRUE, 'rosa.mendoza@escuela.edu.pe', '956781234', '94c121b9e7bf08a65154b8af0b2a31fe:acf3495f8f56715a4893bc66d4312ef9', NULL),
-('34567802', 'Fernando', 'Gutiérrez Pérez', 'M', 'fernando.gutierrez', TRUE, 'fernando.gutierrez@escuela.edu.pe', '956781235', '94c121b9e7bf08a65154b8af0b2a31fe:acf3495f8f56715a4893bc66d4312ef9', NULL);
+('34567801', 'Rosa', 'Mendoza Valdivia', 'F', 'rosa_mendoza_3456', TRUE, 'rosa.mendoza@escuela.edu.pe', '956781234', '94c121b9e7bf08a65154b8af0b2a31fe:acf3495f8f56715a4893bc66d4312ef9', NULL),
+('34567802', 'Fernando', 'Gutiérrez Pérez', 'M', 'fernando_gutierrez_3456', TRUE, 'fernando.gutierrez@escuela.edu.pe', '956781235', '94c121b9e7bf08a65154b8af0b2a31fe:acf3495f8f56715a4893bc66d4312ef9', NULL);
 
 -- Insertar 12 profesores de secundaria en la base de datos
 INSERT INTO "T_Profesores_Secundaria" 
