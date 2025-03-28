@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import { PrismaClient } from "@prisma/client";
-import { generateResponsableToken } from "../../../../lib/helpers/generators/JWT/responsableToken";
+import { generateResponsableToken } from "../../../../lib/helpers/functions/jwt/generators/responsableToken";
 import { verifyResponsablePassword } from "../../../../lib/helpers/encriptations/responsable.encriptation";
 import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
 import { ResponseSuccessLogin } from "../../../../interfaces/shared/apis/shared/login/types";

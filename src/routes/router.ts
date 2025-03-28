@@ -11,6 +11,8 @@ import loginRouter from "./api/login";
 import misDatosRouter from "./api/mis-datos";
 import auxiliaresRouter from "./api/auxiliares";
 import personalAdministrativoRouter from "./api/personal-administrativo";
+import modificacionesTablasRouter from "./api/modificaciones-tablas";
+import verifyGenericUserForAPI01 from "../middlewares/verifyGenericUserForAPI01";
 
 const router = Router();
 
@@ -46,6 +48,12 @@ router.use(
   isDirectivoAuthenticated as any,
   checkAuthentication as any,
   personalAdministrativoRouter
+);
+
+router.use(
+  "/modificaciones-tablas",
+  verifyGenericUserForAPI01 as any,  
+  modificacionesTablasRouter
 );
 
 export default router;

@@ -1,8 +1,8 @@
 import "dotenv/config";
 import jwt from "jsonwebtoken";
-import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
-import { AUXILIARES_SESSION_EXPIRATION } from "../../../../constants/expirations";
-import { JWTPayload } from "../../../../interfaces/JWTPayload";
+import { RolesSistema } from "../../../../../interfaces/shared/RolesSistema";
+import { AUXILIARES_SESSION_EXPIRATION } from "../../../../../constants/expirations";
+import { JWTPayload } from "../../../../../interfaces/JWTPayload";
 
 // Función para generar un token JWT para Auxiliares
 export function generateAuxiliarToken(

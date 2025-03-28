@@ -1,6 +1,6 @@
-import { TUTOR_SESSION_EXPIRATION } from "../../../../constants/expirations";
-import { JWTPayload } from "../../../../interfaces/JWTPayload";
-import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
+import { TUTOR_SESSION_EXPIRATION } from "../../../../../constants/expirations";
+import { JWTPayload } from "../../../../../interfaces/JWTPayload";
+import { RolesSistema } from "../../../../../interfaces/shared/RolesSistema";
 import jwt from "jsonwebtoken";
 
 // Función para generar un token JWT para Tutores de Secundaria

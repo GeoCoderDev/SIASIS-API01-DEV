@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import { PrismaClient } from "@prisma/client";
-import { generateAuxiliarToken } from "../../../../lib/helpers/generators/JWT/auxiliarToken";
+import { generateAuxiliarToken } from "../../../../lib/helpers/functions/jwt/generators/auxiliarToken";
 import { verifyAuxiliarPassword } from "../../../../lib/helpers/encriptations/auxiliar.encriptation";
 import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
 import { Genero } from "../../../../interfaces/shared/Genero";

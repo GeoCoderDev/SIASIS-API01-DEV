@@ -1,6 +1,6 @@
-import { PERSONAL_ADMINISTRATIVO_SESSION_EXPIRATION } from "../../../../constants/expirations";
-import { JWTPayload } from "../../../../interfaces/JWTPayload";
-import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
+import { PERSONAL_ADMINISTRATIVO_SESSION_EXPIRATION } from "../../../../../constants/expirations";
+import { JWTPayload } from "../../../../../interfaces/JWTPayload";
+import { RolesSistema } from "../../../../../interfaces/shared/RolesSistema";
 import jwt from "jsonwebtoken";
 
 // Función para generar un token JWT para Personal Administrativo

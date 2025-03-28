@@ -1,9 +1,9 @@
 import { Request, Response, Router } from "express";
 import { PrismaClient } from "@prisma/client";
-import { generateProfesorSecundariaToken } from "../../../../lib/helpers/generators/JWT/profesorSecundariaToken";
+import { generateProfesorSecundariaToken } from "../../../../lib/helpers/functions/jwt/generators/profesorSecundariaToken";
 import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
 import { Genero } from "../../../../interfaces/shared/Genero";
-import { generateTutorToken } from "../../../../lib/helpers/generators/JWT/tutorToken";
+import { generateTutorToken } from "../../../../lib/helpers/functions/jwt/generators/tutorToken";
 import { verifyProfesorTutorSecundariaPassword } from "../../../../lib/helpers/encriptations/profesorTutotSecundaria.encriptation";
 import { ResponseSuccessLogin } from "../../../../interfaces/shared/apis/shared/login/types";
 import { AuthBlockedDetails } from "../../../../interfaces/shared/apis/errors/details/AuthBloquedDetails";

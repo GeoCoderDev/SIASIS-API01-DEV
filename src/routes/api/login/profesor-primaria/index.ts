@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { verifyProfesorPrimariaPassword } from "../../../../lib/helpers/encriptations/profesorPrimaria.encriptation";
-import { generateProfesorPrimariaToken } from "../../../../lib/helpers/generators/JWT/profesorPrimariaToken";
+import { generateProfesorPrimariaToken } from "../../../../lib/helpers/functions/jwt/generators/profesorPrimariaToken";
 import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
 import { Genero } from "../../../../interfaces/shared/Genero";
 import { LoginBody } from "../auxiliar";

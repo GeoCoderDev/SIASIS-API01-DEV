@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import { PrismaClient } from "@prisma/client";
-import { generateDirectivoToken } from "../../../../lib/helpers/generators/JWT/directivoToken";
+import { generateDirectivoToken } from "../../../../lib/helpers/functions/jwt/generators/directivoToken";
 import { verifyDirectivoPassword } from "../../../../lib/helpers/encriptations/directivo.encriptation";
 import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
 import { Genero } from "../../../../interfaces/shared/Genero";

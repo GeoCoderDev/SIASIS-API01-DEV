@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import { PrismaClient } from "@prisma/client";
-import { generatePersonalAdministrativoToken } from "../../../../lib/helpers/generators/JWT/personalAdministrativoToken";
+import { generatePersonalAdministrativoToken } from "../../../../lib/helpers/functions/jwt/generators/personalAdministrativoToken";
 import { verifyPersonalAdministrativoPassword } from "../../../../lib/helpers/encriptations/personalAdministrativo.encriptation";
 import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
 import { Genero } from "../../../../interfaces/shared/Genero";
