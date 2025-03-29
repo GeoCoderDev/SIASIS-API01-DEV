@@ -4,7 +4,7 @@ import { ErrorResponseAPIBase } from "../../../interfaces/shared/apis/types";
 import { SystemErrorTypes } from "../../../interfaces/shared/apis/errors";
 import { handlePrismaError } from "../../../lib/helpers/handlers/errors/prisma";
 import { GetUltimasModificacionesSuccessResponse } from "../../../interfaces/shared/apis/shared/modificaciones-tablas/types";
-import { Tablas_Sistema } from "../../../interfaces/shared/Tablas_Sistema";
+import { TablasSistema } from "../../../interfaces/shared/TablasSistema";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -25,13 +25,13 @@ router.get("/", (async (req: Request, res: Response) => {
       // Convertir los valores de los enums a nombres reales de tablas
       const tablasReales = tablasEnums.map((enumValue) => {
         // Comprobamos si el valor es un enum válido
-        const matchingKey = Object.keys(Tablas_Sistema).find(
+        const matchingKey = Object.keys(TablasSistema).find(
           (key) => key.toLowerCase() === enumValue.toLowerCase()
         );
 
         // Si encontramos una coincidencia, usamos el valor del enum
         if (matchingKey) {
-          return Tablas_Sistema[matchingKey as keyof typeof Tablas_Sistema];
+          return TablasSistema[matchingKey as keyof typeof TablasSistema];
         }
 
         // Si no encontramos coincidencia, asumimos que es un nombre directo de tabla

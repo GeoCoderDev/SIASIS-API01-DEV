@@ -2,7 +2,7 @@
  * Enum que contiene los nombres de las tablas del sistema.
  * Permite referenciar las tablas de la base de datos de manera más intuitiva en el código.
  */
-export enum Tablas_Sistema {
+export enum TablasSistema {
     // Usuarios y roles
     Tabla_Directivos = "T_Directivos",
     Tabla_Auxiliares = "T_Auxiliares",
@@ -47,6 +47,7 @@ export enum Tablas_Sistema {
     Tabla_Control_Salida_Personal_Administrativo = "T_Control_Salida_Mensual_Personal_Administrativo",
     
     // Configuración y sistema
+    Tabla_Fechas_Importantes = "T_Fechas_Importantes",
     Tabla_Horarios_Asistencia = "T_Horarios_Asistencia",
     Tabla_Ajustes_Sistema = "T_Ajustes_Generales_Sistema",
     Tabla_Bloqueo_Roles = "T_Bloqueo_Roles",

@@ -472,3 +472,13 @@ model T_Ultima_Modificacion_Tablas {
 
   @@map("T_Ultima_Modificacion_Tablas")
 }
+
+model T_Fechas_Importantes {
+  Id_Fecha_Importante Int      @id @default(autoincrement())
+  Nombre              String   @db.VarChar(100)
+  Valor               DateTime @db.Date
+  Descripcion         String?  @db.Text
+  Ultima_Modificacion DateTime @default(now())
+
+  @@map("T_Fechas_Importantes")
+}
