@@ -119,3 +119,7 @@ INSERT INTO "T_Horarios_Asistencia" ("Nombre", "Valor", "Descripcion", "Ultima_M
 ('Fin_Horario_Laboral_Secundaria', '18:30:00', 'Hora de fin de la jornada laboral para profesores de secundaria', CURRENT_TIMESTAMP),
 ('Inicio_Horario_Laboral_Auxiliar', '13:00:00', 'Hora de inicio de la jornada laboral para auxiliares', CURRENT_TIMESTAMP),
 ('Fin_Horario_Laboral_Auxiliar', '18:30:00', 'Hora de fin de la jornada laboral para auxiliares', CURRENT_TIMESTAMP);
+
+
+
+

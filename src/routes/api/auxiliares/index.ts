@@ -67,9 +67,7 @@ router.get(
       return res.status(200).json({
         success: true,
         message: "Auxiliares obtenidos exitosamente",
-        data: {
-          auxiliares,
-        },
+        data: auxiliares,
       } as GetAuxiliaresSuccessResponse);
     } catch (error) {
       console.error("Error al obtener auxiliares:", error);
@@ -265,9 +263,7 @@ router.put("/:dni", (async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       message: "Auxiliar actualizado exitosamente",
-      data: {
-        auxiliar: updatedAuxiliar,
-      },
+      data: updatedAuxiliar,
     } as UpdateAuxiliarSuccessResponse);
   } catch (error) {
     console.error("Error al actualizar auxiliar:", error);

@@ -11,8 +11,8 @@ import {
 import { handlePrismaError } from "../../../lib/helpers/handlers/errors/prisma";
 import { validateDNI } from "../../../lib/helpers/validators/data/validateDNI";
 import {
-  GetPersonalAdministrativoDetalleSuccessResponse,
   GetPersonalAdministrativoSuccessResponse,
+  GetPersonalAdministrativoUnicoSuccessResponse,
   SwitchEstadoPersonalAdministrativoSuccessResponse,
 } from "../../../interfaces/shared/apis/api01/personal-administrativo/types";
 
@@ -122,7 +122,7 @@ router.get("/:dni", (async (req: Request, res: Response) => {
       success: true,
       message: "Personal administrativo obtenido exitosamente",
       data: personalAdministrativo,
-    } as GetPersonalAdministrativoDetalleSuccessResponse);
+    } as GetPersonalAdministrativoUnicoSuccessResponse);
   } catch (error) {
     console.error("Error al obtener personal administrativo:", error);
 
