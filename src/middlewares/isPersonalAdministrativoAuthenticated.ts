@@ -6,9 +6,13 @@ import { verificarBloqueoRol } from "../lib/helpers/verificators/verificarBloque
 import {
   JWTPayload,
   PersonalAdministrativoAuthenticated,
-} from "../interfaces/JWTPayload";
+} from "../interfaces/shared/JWTPayload";
 import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/details";
-import { SystemErrorTypes, TokenErrorTypes, UserErrorTypes } from "../interfaces/shared/apis/errors";
+import {
+  SystemErrorTypes,
+  TokenErrorTypes,
+  UserErrorTypes,
+} from "../interfaces/shared/apis/errors";
 
 const prisma = new PrismaClient();
 

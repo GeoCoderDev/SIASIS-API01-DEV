@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { ErrorResponseAPIBase } from "../../../interfaces/shared/apis/types";
 import isDirectivoAuthenticated from "../../../middlewares/isDirectivoAuthenticated";
 import checkAuthentication from "../../../middlewares/checkAuthentication";
-import { DirectivoAuthenticated } from "../../../interfaces/JWTPayload";
+import { DirectivoAuthenticated } from "../../../interfaces/shared/JWTPayload";
 import {
   PermissionErrorTypes,
   RequestErrorTypes,

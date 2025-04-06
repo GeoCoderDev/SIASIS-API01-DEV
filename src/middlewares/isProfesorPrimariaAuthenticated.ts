@@ -6,7 +6,7 @@ import { verificarBloqueoRol } from "../lib/helpers/verificators/verificarBloque
 import {
   JWTPayload,
   ProfesorPrimariaAuthenticated,
-} from "../interfaces/JWTPayload";
+} from "../interfaces/shared/JWTPayload";
 
 import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/details";
 import {

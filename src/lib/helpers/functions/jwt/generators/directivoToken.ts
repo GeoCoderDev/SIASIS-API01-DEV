@@ -2,7 +2,7 @@ import "dotenv/config";
 import jwt from "jsonwebtoken";
 import { RolesSistema } from "../../../../../interfaces/shared/RolesSistema";
 import { DIRECTIVOS_SESSION_EXPIRATION } from "../../../../../constants/expirations";
-import { JWTPayload } from "../../../../../interfaces/JWTPayload";
+import { JWTPayload } from "../../../../../interfaces/shared/JWTPayload";
 
 // Función para generar un token JWT para directivos
 export function generateDirectivoToken(

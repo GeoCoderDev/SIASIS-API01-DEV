@@ -1,7 +1,7 @@
 // routes/index.ts
 import { Router } from "express";
 
-import { UserAuthenticatedAPI01 } from "../interfaces/JWTPayload";
+import { UserAuthenticatedAPI01 } from "../interfaces/shared/JWTPayload";
 import AllErrorTypes from "../interfaces/shared/apis/errors";
 import { ErrorDetails } from "../interfaces/shared/apis/errors/details";
 import isDirectivoAuthenticated from "../middlewares/isDirectivoAuthenticated";
@@ -52,7 +52,7 @@ router.use(
 
 router.use(
   "/modificaciones-tablas",
-  verifyGenericUserForAPI01 as any,  
+  verifyGenericUserForAPI01 as any,
   modificacionesTablasRouter
 );
 

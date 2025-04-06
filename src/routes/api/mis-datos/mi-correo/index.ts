@@ -17,7 +17,7 @@ import {
 import {
   DirectivoAuthenticated,
   ProfesorTutorSecundariaAuthenticated,
-} from "../../../../interfaces/JWTPayload";
+} from "../../../../interfaces/shared/JWTPayload";
 import { handlePrismaError } from "../../../../lib/helpers/handlers/errors/prisma";
 import { ValidatorConfig } from "../../../../lib/helpers/validators/data/types";
 import { validateData } from "../../../../lib/helpers/validators/data/validateData";
@@ -156,9 +156,10 @@ router.put(
 
       // Timestamp actual en milisegundos
       const ahora = Date.now();
-      
+
       // Calcular tiempo de expiración (minutos desde ahora en milisegundos)
-      const fechaExpiracion = ahora + (OTP_CODE_FOR_UPDATING_EMAIL_MINUTES * 60 * 1000);
+      const fechaExpiracion =
+        ahora + OTP_CODE_FOR_UPDATING_EMAIL_MINUTES * 60 * 1000;
 
       // Guardar código OTP en la base de datos usando timestamps Unix
       await prisma.t_Codigos_OTP.create({

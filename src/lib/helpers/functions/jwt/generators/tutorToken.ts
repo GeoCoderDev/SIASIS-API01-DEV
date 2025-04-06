@@ -1,5 +1,5 @@
 import { TUTOR_SESSION_EXPIRATION } from "../../../../../constants/expirations";
-import { JWTPayload } from "../../../../../interfaces/JWTPayload";
+import { JWTPayload } from "../../../../../interfaces/shared/JWTPayload";
 import { RolesSistema } from "../../../../../interfaces/shared/RolesSistema";
 import jwt from "jsonwebtoken";
 

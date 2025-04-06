@@ -24,7 +24,7 @@ import {
   PersonalAdministrativoAuthenticated,
   ProfesorPrimariaAuthenticated,
   ProfesorTutorSecundariaAuthenticated,
-} from "../../../../interfaces/JWTPayload";
+} from "../../../../interfaces/shared/JWTPayload";
 import {
   encryptDirectivoPassword,
   verifyDirectivoPassword,

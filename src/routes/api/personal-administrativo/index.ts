@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import { ErrorResponseAPIBase } from "../../../interfaces/shared/apis/types";
-import { DirectivoAuthenticated } from "../../../interfaces/JWTPayload";
+import { DirectivoAuthenticated } from "../../../interfaces/shared/JWTPayload";
 import {
   PermissionErrorTypes,
   SystemErrorTypes,

@@ -26,7 +26,7 @@ import {
   PersonalAdministrativoAuthenticated,
   ProfesorPrimariaAuthenticated,
   ProfesorTutorSecundariaAuthenticated,
-} from "../../../../interfaces/JWTPayload";
+} from "../../../../interfaces/shared/JWTPayload";
 import { handlePrismaError } from "../../../../lib/helpers/handlers/errors/prisma";
 
 import { CambiarFotoPerfilSuccessResponse } from "../../../../interfaces/shared/apis/shared/mis-datos/mi-foto-perfil/types";

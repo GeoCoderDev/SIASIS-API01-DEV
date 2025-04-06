@@ -3,7 +3,10 @@ import jwt from "jsonwebtoken";
 import { RolesSistema } from "../interfaces/shared/RolesSistema";
 import { PrismaClient } from "@prisma/client";
 import { verificarBloqueoRol } from "../lib/helpers/verificators/verificarBloqueoRol";
-import { DirectivoAuthenticated, JWTPayload } from "../interfaces/JWTPayload";
+import {
+  DirectivoAuthenticated,
+  JWTPayload,
+} from "../interfaces/shared/JWTPayload";
 import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/details";
 import {
   SystemErrorTypes,

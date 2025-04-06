@@ -3,7 +3,10 @@ import jwt from "jsonwebtoken";
 import { RolesSistema } from "../interfaces/shared/RolesSistema";
 import { PrismaClient } from "@prisma/client";
 import { verificarBloqueoRol } from "../lib/helpers/verificators/verificarBloqueoRol";
-import { JWTPayload, ResponsableAuthenticated } from "../interfaces/JWTPayload";
+import {
+  JWTPayload,
+  ResponsableAuthenticated,
+} from "../interfaces/shared/JWTPayload";
 import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/details";
 import {
   SystemErrorTypes,

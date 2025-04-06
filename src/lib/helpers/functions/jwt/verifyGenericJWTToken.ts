@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { TokenErrorTypes } from "../../../../interfaces/shared/apis/errors";
-import { JWTPayload } from "../../../../interfaces/JWTPayload";
+import { JWTPayload } from "../../../../interfaces/shared/JWTPayload";
 
 interface TokenPreliminaryCheck {
   isValid: boolean;

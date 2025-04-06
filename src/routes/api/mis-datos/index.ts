@@ -10,7 +10,7 @@ import {
   ProfesorTutorSecundariaAuthenticated,
   // ResponsableAuthenticated,
   PersonalAdministrativoAuthenticated,
-} from "../../../interfaces/JWTPayload";
+} from "../../../interfaces/shared/JWTPayload";
 
 import isDirectivoAuthenticated from "../../../middlewares/isDirectivoAuthenticated";
 import isProfesorPrimariaAuthenticated from "../../../middlewares/isProfesorPrimariaAuthenticated";
@@ -273,7 +273,7 @@ router.get(
               // Incluir horarios laborales para personal administrativo
               Horario_Laboral_Entrada: true,
               Horario_Laboral_Salida: true,
-              Cargo: true
+              Cargo: true,
             },
           })) as MisDatosPersonalAdministrativo;
 
