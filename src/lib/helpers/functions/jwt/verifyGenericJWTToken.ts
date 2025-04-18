@@ -6,7 +6,7 @@ interface TokenPreliminaryCheck {
   isValid: boolean;
   message: string;
   errorType?: TokenErrorTypes;
-  payload?: any;
+  payload?: JWTPayload;
 }
 
 /**

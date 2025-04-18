@@ -56,7 +56,7 @@ const checkAuthentication = (
   }
 
   // Si no hay un error específico, usar un mensaje genérico
-  return res.status(403).json({
+  return res.status(401).json({
     success: false,
     message:
       "Acceso denegado. No tiene los permisos necesarios para acceder a este recurso.",

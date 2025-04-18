@@ -41,7 +41,7 @@ const verifyGenericUserForAPI01 = (
     }
 
     // Verificar que el rol no sea Responsable
-    if (preliminaryCheck.payload?.rol === RolesSistema.Responsable) {
+    if (preliminaryCheck.payload?.Rol === RolesSistema.Responsable) {
       return res.status(403).json({
         success: false,
         message: "Los usuarios con rol Responsable no tienen acceso a esta API",

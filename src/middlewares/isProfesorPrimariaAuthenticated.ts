@@ -24,6 +24,10 @@ const isProfesorPrimariaAuthenticated = async (
   next: NextFunction
 ) => {
   try {
+    if (req.userRole && req.userRole !== RolesSistema.ProfesorPrimaria) {
+      return next();
+    }
+
     // Si ya está autenticado con algún rol o ya hay un error, continuar
     if (req.isAuthenticated || req.authError) {
       return next();
