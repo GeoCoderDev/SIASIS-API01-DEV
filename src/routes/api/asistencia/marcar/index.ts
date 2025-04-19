@@ -88,19 +88,22 @@ const registrarAsistenciaEstudiante = async (
   });
 
   if (registroExistente) {
-    // Si ya existe un registro, actualizar los estados
+    // Si ya existe un registro, verificar si ya se registró asistencia para el día actual
     let estadosActuales = registroExistente.Estados;
 
-    // Asegurar que la longitud de estados coincida con el día actual
-    while (estadosActuales.length < dia) {
-      estadosActuales += EstadosAsistencia.Falta; // Llenar con faltas los días sin registro
+    // Si ya tiene registro para el día actual (la longitud ya cubre el día actual)
+    if (estadosActuales.length >= dia) {
+      // Ya existe un registro para este día, solo retornar el ID existente
+      return registroExistente.Id_Asistencia_Escolar_Mensual;
     }
 
-    // Actualizar el estado del día actual
-    const nuevosEstados =
-      estadosActuales.substring(0, dia - 1) +
-      estado +
-      estadosActuales.substring(dia);
+    // Si no tiene registro para el día actual, completar con faltas hasta el día anterior
+    while (estadosActuales.length < dia - 1) {
+      estadosActuales += EstadosAsistencia.Falta;
+    }
+
+    // Agregar el estado actual
+    estadosActuales += estado;
 
     // Actualizar en la base de datos
     const registroActualizado = await (prisma as any)[tabla].update({
@@ -109,7 +112,7 @@ const registrarAsistenciaEstudiante = async (
           registroExistente.Id_Asistencia_Escolar_Mensual,
       },
       data: {
-        Estados: nuevosEstados,
+        Estados: estadosActuales,
       },
     });
 
@@ -212,11 +215,16 @@ const registrarAsistenciaPersonal = async (
   });
 
   if (registroExistente) {
-    // Si ya existe un registro, actualizar el JSON
-    // Asegurarse de que el JSON existe, si no, crear un objeto vacío
+    // Si ya existe un registro, verificar si ya se registró asistencia para el día actual
     const jsonActual = registroExistente[campoJson] || {};
 
-    // Agregar/actualizar el registro del día actual
+    // Verificar si ya existe un registro para este día
+    if (jsonActual[dia.toString()]) {
+      // Ya existe registro para este día, solo retornar el ID existente
+      return registroExistente[campoId];
+    }
+
+    // Si no existe un registro para este día, agregarlo
     jsonActual[dia.toString()] = {
       Timestamp: timestampActual,
       DesfaseSegundos: desfaseSegundos,
@@ -257,7 +265,6 @@ const registrarAsistenciaPersonal = async (
     return nuevoRegistro[campoId];
   }
 };
-
 // Implementación del endpoint
 router.post("/marcar", (async (req: Request, res: Response) => {
   try {
