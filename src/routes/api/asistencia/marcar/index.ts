@@ -43,6 +43,10 @@ const obtenerDiaActualPeru = (): number => {
   return fecha.getDate();
 };
 
+// Constantes de configuración
+const MINUTOS_TOLERANCIA = 5; // 5 minutos de tolerancia para considerar llegada temprana
+const ASUMIR_REDIS_SI_EN_BD = true; // Si está en BD, asumir que también está en Redis
+
 // Función para registrar asistencia de estudiantes
 const registrarAsistenciaEstudiante = async (
   dni: string,
@@ -51,15 +55,18 @@ const registrarAsistenciaEstudiante = async (
   timestampActual: number,
   fechaHoraEsperada: Date,
   modoRegistro: ModoRegistro
-): Promise<number> => {
-  // Determinar el estado de asistencia basado en el desfase
+): Promise<{ registroId: number; esNuevoRegistro: boolean }> => {
+  // Calcular desfase en segundos
   const desfaseSegundos = Math.floor(
     (timestampActual - fechaHoraEsperada.getTime()) / 1000
   );
+
+  // Determinar el estado de asistencia basado en el desfase con tolerancia
   let estado = EstadosAsistencia.Temprano; // Por defecto es asistencia puntual
 
-  if (desfaseSegundos > 0) {
-    // Si llegó después de la hora esperada
+  // Convertir minutos de tolerancia a segundos y comparar
+  if (desfaseSegundos > MINUTOS_TOLERANCIA * 60) {
+    // Si llegó después de la hora esperada + tolerancia
     estado = EstadosAsistencia.Tarde;
   }
 
@@ -94,7 +101,10 @@ const registrarAsistenciaEstudiante = async (
     // Si ya tiene registro para el día actual (la longitud ya cubre el día actual)
     if (estadosActuales.length >= dia) {
       // Ya existe un registro para este día, solo retornar el ID existente
-      return registroExistente.Id_Asistencia_Escolar_Mensual;
+      return {
+        registroId: registroExistente.Id_Asistencia_Escolar_Mensual,
+        esNuevoRegistro: false,
+      };
     }
 
     // Si no tiene registro para el día actual, completar con faltas hasta el día anterior
@@ -116,7 +126,10 @@ const registrarAsistenciaEstudiante = async (
       },
     });
 
-    return registroActualizado.Id_Asistencia_Escolar_Mensual;
+    return {
+      registroId: registroActualizado.Id_Asistencia_Escolar_Mensual,
+      esNuevoRegistro: true,
+    };
   } else {
     // Si no existe, crear un nuevo registro
     let estados = "";
@@ -138,7 +151,10 @@ const registrarAsistenciaEstudiante = async (
       },
     });
 
-    return nuevoRegistro.Id_Asistencia_Escolar_Mensual;
+    return {
+      registroId: nuevoRegistro.Id_Asistencia_Escolar_Mensual,
+      esNuevoRegistro: true,
+    };
   }
 };
 
@@ -149,9 +165,11 @@ const registrarAsistenciaPersonal = async (
   modoRegistro: ModoRegistro,
   timestampActual: number,
   fechaHoraEsperada: Date
-): Promise<number> => {
+): Promise<{ registroId: number; esNuevoRegistro: boolean }> => {
   const mes = obtenerMesActualPeru();
   const dia = obtenerDiaActualPeru();
+
+  // Calcular desfase en segundos
   const desfaseSegundos = Math.floor(
     (timestampActual - fechaHoraEsperada.getTime()) / 1000
   );
@@ -221,7 +239,10 @@ const registrarAsistenciaPersonal = async (
     // Verificar si ya existe un registro para este día
     if (jsonActual[dia.toString()]) {
       // Ya existe registro para este día, solo retornar el ID existente
-      return registroExistente[campoId];
+      return {
+        registroId: registroExistente[campoId],
+        esNuevoRegistro: false,
+      };
     }
 
     // Si no existe un registro para este día, agregarlo
@@ -240,7 +261,10 @@ const registrarAsistenciaPersonal = async (
       },
     });
 
-    return registroActualizado[campoId];
+    return {
+      registroId: registroActualizado[campoId],
+      esNuevoRegistro: true,
+    };
   } else {
     // Si no existe, crear un nuevo registro
     const nuevoJson: any = {};
@@ -262,9 +286,13 @@ const registrarAsistenciaPersonal = async (
       data: datosCreacion,
     });
 
-    return nuevoRegistro[campoId];
+    return {
+      registroId: nuevoRegistro[campoId],
+      esNuevoRegistro: true,
+    };
   }
 };
+
 // Implementación del endpoint
 router.post("/marcar", (async (req: Request, res: Response) => {
   try {
@@ -314,14 +342,12 @@ router.post("/marcar", (async (req: Request, res: Response) => {
         errorType: RequestErrorTypes.INVALID_PARAMETERS,
       });
     }
-
     // Obtener timestamp actual (en Perú, UTC-5)
     const fechaActualPeru = new Date();
     fechaActualPeru.setHours(fechaActualPeru.getHours() - 5);
     const timestampActual = fechaActualPeru.getTime();
 
-    let registroId;
-
+    let resultado;
     // Determinar si es un estudiante o personal
     const esEstudiante = Actor === ActoresSistema.Estudiante;
 
@@ -337,28 +363,28 @@ router.post("/marcar", (async (req: Request, res: Response) => {
       }
 
       // Registrar asistencia de estudiante
-      registroId = await registrarAsistenciaEstudiante(
+      resultado = await registrarAsistenciaEstudiante(
         DNI,
         NivelDelEstudiante,
         AulaDelEstudiante,
         timestampActual,
-        fechaHoraEsperada,
+        new Date(FechaHoraEsperadaISO),
         ModoRegistro
       );
     } else {
       // Registrar asistencia de personal
-      registroId = await registrarAsistenciaPersonal(
+      resultado = await registrarAsistenciaPersonal(
         DNI,
         Actor,
         ModoRegistro,
         timestampActual,
-        fechaHoraEsperada
+        new Date(FechaHoraEsperadaISO)
       );
     }
 
     // Calcular desfase en segundos
     const desfaseSegundos = Math.floor(
-      (timestampActual - fechaHoraEsperada.getTime()) / 1000
+      (timestampActual - new Date(FechaHoraEsperadaISO).getTime()) / 1000
     );
 
     // Crear clave para Redis
@@ -374,17 +400,22 @@ router.post("/marcar", (async (req: Request, res: Response) => {
       desfaseSegundos.toString(),
     ];
 
-    // Guardar en Redis
-    await redisClient.set(clave, valor);
+    // Guardar en Redis solo si es un nuevo registro o no asumimos que si está en BD está en Redis
+    if (resultado.esNuevoRegistro || !ASUMIR_REDIS_SI_EN_BD) {
+      await redisClient.set(clave, valor);
+    }
 
     return res.status(200).json({
       success: true,
-      message: "Asistencia registrada correctamente",
+      message: resultado.esNuevoRegistro
+        ? "Asistencia registrada correctamente"
+        : "La asistencia ya había sido registrada anteriormente",
       data: {
-        registroId,
+        registroId: resultado.registroId,
         timestamp: timestampActual,
         desfaseSegundos,
         fechaHora: fechaActualPeru.toISOString(),
+        esNuevoRegistro: resultado.esNuevoRegistro,
       },
     } as SuccessResponseAPIBase);
   } catch (error) {
