@@ -1,20 +1,9 @@
-import { ActoresSistema } from "./ActoresSistema";
 import { ModoRegistro } from "./ModoRegistroPersonal";
 import { RolesSistema } from "./RolesSistema";
-import { NivelEducativo } from "./NivelEducativo";
 import { Meses } from "./Meses";
 
-export interface RegistrarAsistenciaIndividualRequestBody {
-  DNI: string;
-  Actor: ActoresSistema | RolesSistema;
-  ModoRegistro: ModoRegistro;
-  FechaHoraEsperada: string;
-  NivelDelEstudiante?: NivelEducativo;
-  AulaDelEstudiante?: string;
-}
-
 export interface DetallesAsistenciaUnitariaPersonal {
-  TimestampEntrada: number;
+  Timestamp: number;
   DesfaseSegundos: number;
 }
 

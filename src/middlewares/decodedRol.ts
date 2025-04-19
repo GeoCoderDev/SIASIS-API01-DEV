@@ -42,7 +42,6 @@ const decodedRol = async (req: Request, res: Response, next: NextFunction) => {
 
   // Guardar la información del rol en el request para uso posterior
   req.userRole = tokenCheck.payload?.Rol;
-  console.log("CONTINUANDO");
   // Continuar con el siguiente middleware
   next();
 };
