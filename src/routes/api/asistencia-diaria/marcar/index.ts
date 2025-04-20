@@ -18,6 +18,7 @@ import { redisClient } from "../../../../../config/Redis/RedisClient";
 import { handlePrismaError } from "../../../../lib/helpers/handlers/errors/prisma";
 import { ErrorResponseAPIBase } from "../../../../interfaces/shared/apis/types";
 import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
+import { HORA_MAXIMA_EXPIRACION_PARA_REGISTROS_EN_REDIS } from "../../../../constants/expirations";
 
 const prisma = new PrismaClient();
 
@@ -318,6 +319,32 @@ const registrarAsistenciaPersonal = async (
   }
 };
 
+// Función para calcular los segundos hasta la hora de expiración (8 PM)
+const calcularSegundosHastaExpiracion = (): number => {
+  const fechaActualPeru = new Date();
+  fechaActualPeru.setHours(fechaActualPeru.getHours() - 5); // Ajustar a hora de Perú (UTC-5)
+
+  // Crear fecha objetivo a las 20:00 del mismo día
+  const fechaExpiracion = new Date(fechaActualPeru);
+  fechaExpiracion.setHours(
+    HORA_MAXIMA_EXPIRACION_PARA_REGISTROS_EN_REDIS,
+    0,
+    0,
+    0
+  );
+
+  // Si la hora actual ya pasó las 20:00, establecer para las 20:00 del día siguiente
+  if (fechaActualPeru >= fechaExpiracion) {
+    fechaExpiracion.setDate(fechaExpiracion.getDate() + 1);
+  }
+
+  // Calcular diferencia en segundos
+  const segundosHastaExpiracion = Math.floor(
+    (fechaExpiracion.getTime() - fechaActualPeru.getTime()) / 1000
+  );
+  return Math.max(1, segundosHastaExpiracion); // Mínimo 1 segundo para evitar valores negativos o cero
+};
+
 // Modificación del endpoint para usar el Id_Registro_Mensual
 router.post("/marcar", (async (req: Request, res: Response) => {
   try {
@@ -417,9 +444,12 @@ router.post("/marcar", (async (req: Request, res: Response) => {
       desfaseSegundos.toString(),
     ];
 
-    // Guardar en Redis solo si es un nuevo registro o no asumimos que si está en BD está en Redis
+    // En la parte donde se guarda en Redis, modificar para incluir la expiración:
     if (resultado.esNuevoRegistro || !ASUMIR_REDIS_SI_EN_BD) {
-      await redisClient.set(clave, valor);
+      const segundosHastaExpiracion = calcularSegundosHastaExpiracion();
+
+      // Usar el método set con la opción EX para establecer el tiempo de expiración en segundos
+      await redisClient.set(clave, valor, { ex: segundosHastaExpiracion });
     }
 
     return res.status(200).json({
