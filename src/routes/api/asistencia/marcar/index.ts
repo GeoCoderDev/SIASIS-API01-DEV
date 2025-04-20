@@ -5,7 +5,10 @@ import { ModoRegistro } from "../../../../interfaces/shared/ModoRegistroPersonal
 import { EstadosAsistencia } from "../../../../interfaces/shared/EstadosAsistenciaEstudiantes";
 import { ActoresSistema } from "../../../../interfaces/shared/ActoresSistema";
 import express from "express";
-import { RegistrarAsistenciaIndividualRequestBody } from "../../../../interfaces/shared/apis/api01/asistencia/types";
+import {
+  RegistrarAsistenciaIndividualRequestBody,
+  RegistrarAsistenciaIndividualSuccessResponse,
+} from "../../../../interfaces/shared/apis/api01/asistencia/types";
 import { validateDNI } from "../../../../lib/helpers/validators/data/validateDNI";
 import {
   RequestErrorTypes,
@@ -53,8 +56,7 @@ const registrarAsistenciaEstudiante = async (
   nivel: NivelEducativo,
   aula: string,
   timestampActual: number,
-  fechaHoraEsperada: Date,
-  modoRegistro: ModoRegistro
+  fechaHoraEsperada: Date
 ): Promise<{ registroId: number; esNuevoRegistro: boolean }> => {
   // Calcular desfase en segundos
   const desfaseSegundos = Math.floor(
@@ -303,6 +305,7 @@ router.post("/marcar", (async (req: Request, res: Response) => {
       ModoRegistro,
       AulaDelEstudiante,
       NivelDelEstudiante,
+      Id_Registro_Mensual,
     } = req.body as RegistrarAsistenciaIndividualRequestBody;
 
     // Validar DNI
@@ -368,8 +371,7 @@ router.post("/marcar", (async (req: Request, res: Response) => {
         NivelDelEstudiante,
         AulaDelEstudiante,
         timestampActual,
-        new Date(FechaHoraEsperadaISO),
-        ModoRegistro
+        new Date(FechaHoraEsperadaISO)
       );
     } else {
       // Registrar asistencia de personal
@@ -411,13 +413,12 @@ router.post("/marcar", (async (req: Request, res: Response) => {
         ? "Asistencia registrada correctamente"
         : "La asistencia ya había sido registrada anteriormente",
       data: {
-        registroId: resultado.registroId,
+        Id_Registro_Mensual: resultado.registroId,
         timestamp: timestampActual,
         desfaseSegundos,
-        fechaHora: fechaActualPeru.toISOString(),
         esNuevoRegistro: resultado.esNuevoRegistro,
       },
-    } as SuccessResponseAPIBase);
+    } as RegistrarAsistenciaIndividualSuccessResponse);
   } catch (error) {
     console.error("Error al registrar asistencia:", error);
 
