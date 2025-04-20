@@ -460,3 +460,5 @@ router.post("/marcar", (async (req: Request, res: Response) => {
     } as ErrorResponseAPIBase);
   }
 }) as any);
+
+export default router;
