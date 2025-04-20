@@ -16,10 +16,8 @@ import {
 } from "../../../../interfaces/shared/apis/errors";
 import { redisClient } from "../../../../../config/Redis/RedisClient";
 import { handlePrismaError } from "../../../../lib/helpers/handlers/errors/prisma";
-import {
-  ErrorResponseAPIBase,
-  SuccessResponseAPIBase,
-} from "../../../../interfaces/shared/apis/types";
+import { ErrorResponseAPIBase } from "../../../../interfaces/shared/apis/types";
+import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
 
 const prisma = new PrismaClient();
 
@@ -56,7 +54,8 @@ const registrarAsistenciaEstudiante = async (
   nivel: NivelEducativo,
   aula: string,
   timestampActual: number,
-  fechaHoraEsperada: Date
+  fechaHoraEsperada: Date,
+  idRegistroMensual?: number
 ): Promise<{ registroId: number; esNuevoRegistro: boolean }> => {
   // Calcular desfase en segundos
   const desfaseSegundos = Math.floor(
@@ -64,52 +63,64 @@ const registrarAsistenciaEstudiante = async (
   );
 
   // Determinar el estado de asistencia basado en el desfase con tolerancia
-  let estado = EstadosAsistencia.Temprano; // Por defecto es asistencia puntual
-
-  // Convertir minutos de tolerancia a segundos y comparar
+  let estado = EstadosAsistencia.Temprano;
   if (desfaseSegundos > MINUTOS_TOLERANCIA * 60) {
-    // Si llegó después de la hora esperada + tolerancia
     estado = EstadosAsistencia.Tarde;
   }
+
+  const mes = obtenerMesActualPeru();
+  const dia = obtenerDiaActualPeru();
 
   // Extraer el grado del aula (primer carácter numérico)
   const grado = parseInt(aula.match(/\d/)![0]);
 
   // Determinar la tabla donde se registrará la asistencia
   let tabla;
-  const mes = obtenerMesActualPeru();
-  const dia = obtenerDiaActualPeru();
-
   if (nivel === NivelEducativo.PRIMARIA) {
-    // Para primaria: T_A_E_P_1 hasta T_A_E_P_6
     tabla = `t_A_E_P_${grado}`;
   } else {
-    // Para secundaria: T_A_E_S_1 hasta T_A_E_S_5
     tabla = `t_A_E_S_${grado}`;
   }
 
-  // Buscar si ya existe un registro para este estudiante en este mes
-  const registroExistente = await (prisma as any)[tabla].findFirst({
-    where: {
-      DNI_Estudiante: dni,
-      Mes: mes,
-    },
-  });
+  let registroExistente = null;
+
+  // Si tenemos el ID del registro, lo buscamos directamente por ID (más rápido)
+  if (idRegistroMensual !== undefined) {
+    registroExistente = await (prisma as any)[tabla].findUnique({
+      where: {
+        Id_Asistencia_Escolar_Mensual: idRegistroMensual,
+      },
+    });
+
+    // Verificar que el registro encontrado coincide con el DNI proporcionado
+    if (registroExistente && registroExistente.DNI_Estudiante !== dni) {
+      registroExistente = null; // El ID no corresponde al DNI, invalidamos
+    }
+  }
+
+  // Si no tenemos el ID o no se encontró, buscamos por DNI y mes
+  if (!registroExistente) {
+    registroExistente = await (prisma as any)[tabla].findFirst({
+      where: {
+        DNI_Estudiante: dni,
+        Mes: mes,
+      },
+    });
+  }
 
   if (registroExistente) {
     // Si ya existe un registro, verificar si ya se registró asistencia para el día actual
     let estadosActuales = registroExistente.Estados;
 
-    // Si ya tiene registro para el día actual (la longitud ya cubre el día actual)
+    // Si ya tiene registro para el día actual
     if (estadosActuales.length >= dia) {
-      // Ya existe un registro para este día, solo retornar el ID existente
       return {
         registroId: registroExistente.Id_Asistencia_Escolar_Mensual,
         esNuevoRegistro: false,
       };
     }
 
-    // Si no tiene registro para el día actual, completar con faltas hasta el día anterior
+    // Completar con faltas hasta el día anterior
     while (estadosActuales.length < dia - 1) {
       estadosActuales += EstadosAsistencia.Falta;
     }
@@ -163,15 +174,14 @@ const registrarAsistenciaEstudiante = async (
 // Función para registrar asistencia de personal
 const registrarAsistenciaPersonal = async (
   dni: string,
-  actor: ActoresSistema,
+  actor: ActoresSistema | RolesSistema,
   modoRegistro: ModoRegistro,
   timestampActual: number,
-  fechaHoraEsperada: Date
+  fechaHoraEsperada: Date,
+  idRegistroMensual?: number
 ): Promise<{ registroId: number; esNuevoRegistro: boolean }> => {
   const mes = obtenerMesActualPeru();
   const dia = obtenerDiaActualPeru();
-
-  // Calcular desfase en segundos
   const desfaseSegundos = Math.floor(
     (timestampActual - fechaHoraEsperada.getTime()) / 1000
   );
@@ -180,7 +190,6 @@ const registrarAsistenciaPersonal = async (
   let tabla;
   let campoId;
   let campoDNI;
-  // El campo JSON es directamente "Entradas" o "Salidas" según el modo de registro
   const campoJson =
     modoRegistro === ModoRegistro.Entrada ? "Entradas" : "Salidas";
 
@@ -226,13 +235,31 @@ const registrarAsistenciaPersonal = async (
       throw new Error("Actor no soportado para registro de asistencia");
   }
 
-  // Buscar si ya existe un registro para este personal en este mes
-  const registroExistente = await (prisma as any)[tabla].findFirst({
-    where: {
-      [campoDNI]: dni,
-      Mes: mes,
-    },
-  });
+  let registroExistente = null;
+
+  // Si tenemos el ID del registro, lo buscamos directamente por ID (más rápido)
+  if (idRegistroMensual !== undefined) {
+    registroExistente = await (prisma as any)[tabla].findUnique({
+      where: {
+        [campoId]: idRegistroMensual,
+      },
+    });
+
+    // Verificar que el registro encontrado coincide con el DNI proporcionado
+    if (registroExistente && registroExistente[campoDNI] !== dni) {
+      registroExistente = null; // El ID no corresponde al DNI, invalidamos
+    }
+  }
+
+  // Si no tenemos el ID o no se encontró, buscamos por DNI y mes
+  if (!registroExistente) {
+    registroExistente = await (prisma as any)[tabla].findFirst({
+      where: {
+        [campoDNI]: dni,
+        Mes: mes,
+      },
+    });
+  }
 
   if (registroExistente) {
     // Si ya existe un registro, verificar si ya se registró asistencia para el día actual
@@ -240,7 +267,6 @@ const registrarAsistenciaPersonal = async (
 
     // Verificar si ya existe un registro para este día
     if (jsonActual[dia.toString()]) {
-      // Ya existe registro para este día, solo retornar el ID existente
       return {
         registroId: registroExistente[campoId],
         esNuevoRegistro: false,
@@ -270,19 +296,16 @@ const registrarAsistenciaPersonal = async (
   } else {
     // Si no existe, crear un nuevo registro
     const nuevoJson: any = {};
-
-    // Agregar el registro del día actual
     nuevoJson[dia.toString()] = {
       Timestamp: timestampActual,
       DesfaseSegundos: desfaseSegundos,
     };
 
-    // Crear el registro en la base de datos con un objeto literal para los datos
     const datosCreacion: any = {
       [campoDNI]: dni,
       Mes: mes,
     };
-    datosCreacion[campoJson] = nuevoJson; // Agregar el campo JSON
+    datosCreacion[campoJson] = nuevoJson;
 
     const nuevoRegistro = await (prisma as any)[tabla].create({
       data: datosCreacion,
@@ -295,7 +318,7 @@ const registrarAsistenciaPersonal = async (
   }
 };
 
-// Implementación del endpoint
+// Modificación del endpoint para usar el Id_Registro_Mensual
 router.post("/marcar", (async (req: Request, res: Response) => {
   try {
     const {
@@ -336,22 +359,12 @@ router.post("/marcar", (async (req: Request, res: Response) => {
       });
     }
 
-    // Convertir la fecha hora esperada a un objeto Date
-    const fechaHoraEsperada = new Date(FechaHoraEsperadaISO);
-    if (isNaN(fechaHoraEsperada.getTime())) {
-      return res.status(400).json({
-        success: false,
-        message: "Formato de fecha no válido",
-        errorType: RequestErrorTypes.INVALID_PARAMETERS,
-      });
-    }
     // Obtener timestamp actual (en Perú, UTC-5)
     const fechaActualPeru = new Date();
     fechaActualPeru.setHours(fechaActualPeru.getHours() - 5);
     const timestampActual = fechaActualPeru.getTime();
 
     let resultado;
-    // Determinar si es un estudiante o personal
     const esEstudiante = Actor === ActoresSistema.Estudiante;
 
     if (esEstudiante) {
@@ -371,7 +384,8 @@ router.post("/marcar", (async (req: Request, res: Response) => {
         NivelDelEstudiante,
         AulaDelEstudiante,
         timestampActual,
-        new Date(FechaHoraEsperadaISO)
+        new Date(FechaHoraEsperadaISO),
+        Id_Registro_Mensual
       );
     } else {
       // Registrar asistencia de personal
@@ -380,7 +394,8 @@ router.post("/marcar", (async (req: Request, res: Response) => {
         Actor,
         ModoRegistro,
         timestampActual,
-        new Date(FechaHoraEsperadaISO)
+        new Date(FechaHoraEsperadaISO),
+        Id_Registro_Mensual
       );
     }
 
@@ -445,5 +460,3 @@ router.post("/marcar", (async (req: Request, res: Response) => {
     } as ErrorResponseAPIBase);
   }
 }) as any);
-
-export default router;

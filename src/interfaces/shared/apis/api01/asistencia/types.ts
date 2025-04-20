@@ -1,11 +1,12 @@
 import { ActoresSistema } from "../../../ActoresSistema";
 import { ModoRegistro } from "../../../ModoRegistroPersonal";
 import { NivelEducativo } from "../../../NivelEducativo";
+import { RolesSistema } from "../../../RolesSistema";
 import { SuccessResponseAPIBase } from "../../types";
 
 export interface RegistrarAsistenciaIndividualRequestBody {
   DNI: string;
-  Actor: ActoresSistema;
+  Actor: ActoresSistema | RolesSistema;
   ModoRegistro: ModoRegistro;
   FechaHoraEsperadaISO: string;
   NivelDelEstudiante?: NivelEducativo;
