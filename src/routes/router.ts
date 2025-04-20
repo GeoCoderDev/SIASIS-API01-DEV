@@ -12,7 +12,7 @@ import misDatosRouter from "./api/mis-datos";
 import auxiliaresRouter from "./api/auxiliares";
 import personalAdministrativoRouter from "./api/personal-administrativo";
 import modificacionesTablasRouter from "./api/modificaciones-tablas";
-import asistenciaRouter from "./api/asistencia";
+import asistenciaRouter from "./api/asistencia-diaria";
 
 import verifyGenericUserForAPI01 from "../middlewares/verifyGenericUserForAPI01";
 import isAuxiliarAuthenticated from "../middlewares/isAuxiliarAuthenticated";
@@ -78,6 +78,6 @@ router.use(
   modificacionesTablasRouter
 );
 
-router.use("/asistencia", decodedRol as any, asistenciaRouter);
+router.use("/asistencia-diaria", decodedRol as any, asistenciaRouter);
 
 export default router;
