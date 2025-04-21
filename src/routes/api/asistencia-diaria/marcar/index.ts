@@ -21,7 +21,6 @@ import { RolesSistema } from "../../../../interfaces/shared/RolesSistema";
 import { HORA_MAXIMA_EXPIRACION_PARA_REGISTROS_EN_REDIS } from "../../../../constants/expirations";
 
 const prisma = new PrismaClient();
-
 const router = express();
 
 // Función para obtener la fecha actual en Perú (UTC-5)

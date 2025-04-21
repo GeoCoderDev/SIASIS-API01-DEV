@@ -2,9 +2,8 @@
 export async function findOrCreateFolder(drive: any, folderPath: string) {
   // Usar una carpeta compartida como punto de partida en lugar de "root"
   // ID de una carpeta que hayas creado y compartido con la cuenta de servicio
-  let rootFolderID = process.env.RDP01_ROOT_SHARED_FOLDER_ID!;
+  let rootFolderID = process.env.RDP01_GOOGLE_DRIVE_ROOT_SHARED_FOLDER_ID!;
 
-  // El resto del código sigue igual...
   const folderNames = folderPath
     .split("/")
     .filter((name) => name.trim() !== "");
