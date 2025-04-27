@@ -1,9 +1,13 @@
 import { PrismaClient } from "@prisma/client";
 import { ActoresSistema } from "../../../interfaces/shared/ActoresSistema";
 import { RolesSistema } from "../../../interfaces/shared/RolesSistema";
-import { RequestErrorTypes, SystemErrorTypes, UserErrorTypes } from "../../../interfaces/shared/apis/errors";
-import { deleteFileFromDrive } from "./GoogleDrive/deleteFileFromDrive";
-import { uploadFileToDrive } from "./GoogleDrive/uploadFileToDrive";
+import {
+  RequestErrorTypes,
+  SystemErrorTypes,
+  UserErrorTypes,
+} from "../../../interfaces/shared/apis/errors";
+import { deleteFileFromDrive } from "../../../../core/external/google/drive/deleteFileFromDrive";
+import { uploadFileToDrive } from "../../../../core/external/google/drive/uploadFileToDrive";
 
 const prisma = new PrismaClient();
 
