@@ -170,9 +170,9 @@ router.post("/marcar", (async (req: Request, res: Response) => {
 
       // Establecer la expiración
       const segundosHastaExpiracion = calcularSegundosHastaExpiracion();
-      await redisClientInstance.set(clave, valor, {
-        ex: segundosHastaExpiracion,
-      });
+      await redisClientInstance.set(clave, valor, 
+         segundosHastaExpiracion
+      );
     }
 
     return res.status(200).json({

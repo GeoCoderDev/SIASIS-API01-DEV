@@ -2,3 +2,5 @@
 .env
 .vercel
 dist
+prod.env
+*.env

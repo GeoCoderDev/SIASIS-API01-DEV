@@ -7,6 +7,7 @@ import {
   T_Personal_Administrativo,
   T_Profesores_Primaria,
   T_Profesores_Secundaria,
+  T_Vacaciones_Interescolares,
 } from "@prisma/client";
 
 export interface HorarioTomaAsistencia {
@@ -68,7 +69,10 @@ export interface DatosAsistenciaHoyIE20935 {
   FechaLocalPeru: Date;
 
   FueraAñoEscolar: false | RangoFechas;
-  DentroVacionesMedioAño: false | RangoFechas;
+
+  Vacaciones_Interescolares: T_Vacaciones_Interescolares[];
+
+  Semana_De_Gestion: false | RangoFechas;
 
   ComunicadosParaMostrarHoy: T_Comunicados[];
 
@@ -97,8 +101,9 @@ export type BaseAsistenciaResponse = Pick<
   | "DiaEvento"
   | "FechaUTC"
   | "FechaLocalPeru"
+  | "Semana_De_Gestion"
+  | "Vacaciones_Interescolares"
   | "FueraAñoEscolar"
-  | "DentroVacionesMedioAño"
   | "ComunicadosParaMostrarHoy"
 >;
 

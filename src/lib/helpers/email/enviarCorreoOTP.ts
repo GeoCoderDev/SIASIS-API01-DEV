@@ -246,7 +246,7 @@ export async function enviarCorreoOTP(
           
           <div class="footer">
             <p>Este es un correo automático, por favor no responda a este mensaje.</p>
-            <p>© 2024 I.E. 20935 Asunción 8. Todos los derechos reservados.</p>
+            <p>© ${new Date().getFullYear()} I.E. 20935 Asunción 8. Todos los derechos reservados.</p>
           </div>
         </div>
       </body>
