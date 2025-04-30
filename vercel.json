@@ -5,8 +5,7 @@
       "src": "src/app.ts",
       "use": "@vercel/node",
       "config": {
-        "buildCommand": "npx prisma generate",
-        "nodeVersion": "18.x"
+        "buildCommand": "npx prisma generate"
       }
     }
   ],
