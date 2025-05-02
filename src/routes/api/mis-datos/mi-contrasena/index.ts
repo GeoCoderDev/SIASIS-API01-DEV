@@ -52,8 +52,7 @@ const router = Router();
 router.put("/", (async (req: Request, res: Response) => {
   try {
     const Rol = req.userRole!;
-    const rdp02EnUso = req.RDP02_INSTANCE!; // Instancia RDP02 obtenida del token
-    console.log("HOLAAAAAAAAAAAAAAAAAAAAAAAA",rdp02EnUso);
+    const rdp02EnUso = req.RDP02_INSTANCE!;
     const userData = req.user!;
     const { contraseñaActual, nuevaContraseña } =
       req.body as CambiarContraseñaRequestBody;
