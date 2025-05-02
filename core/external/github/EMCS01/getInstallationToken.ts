@@ -1,14 +1,4 @@
-
-
-// Declaramos el tipo para el createAppAuth
-type CreateAppAuthType = (options: {
-  appId: string;
-  privateKey: string;
-  installationId: string;
-}) => any;
-
-// Variable para almacenar la función importada
-let createAppAuthFunc: CreateAppAuthType | null = null;
+import * as jwt from "jsonwebtoken";
 
 // Cache para el token de instalación
 let cachedToken: { token: string; expiresAt: number } | null = null;
@@ -32,6 +22,7 @@ export async function getGithubActionsInstallationToken(): Promise<string> {
   const tokenBuffer = 5 * 60 * 1000; // 5 minutos en milisegundos
 
   if (cachedToken && cachedToken.expiresAt > now + tokenBuffer) {
+    console.log("Usando token de GitHub en caché");
     return cachedToken.token;
   }
 
@@ -55,26 +46,63 @@ export async function getGithubActionsInstallationToken(): Promise<string> {
       );
     }
 
-    // Importar dinámicamente createAppAuth si aún no está cargado
-    if (!createAppAuthFunc) {
-      const module = await import("@octokit/auth-app");
-      createAppAuthFunc = module.createAppAuth;
-    }
+    console.log("Generando nuevo JWT para autenticación de GitHub");
 
-    // Crear autenticador
-    const auth = createAppAuthFunc({
-      appId: GITHUB_APP_ID,
-      privateKey: GITHUB_PRIVATE_KEY,
-      installationId: GITHUB_INSTALLATION_ID,
+    // Crear un JWT para autenticar como GitHub App
+    const nowInSeconds = Math.floor(Date.now() / 1000);
+    const payload = {
+      // Issued at time
+      iat: nowInSeconds,
+      // JWT expiration time (10 minute maximum)
+      exp: nowInSeconds + 10 * 60,
+      // GitHub App's identifier
+      iss: GITHUB_APP_ID,
+    };
+
+    // Generar el JWT con la clave privada
+    const jwtToken = jwt.sign(payload, GITHUB_PRIVATE_KEY, {
+      algorithm: "RS256",
     });
 
-    // Obtener token de instalación
-    const { token, expiresAt } = await auth({ type: "installation" });
+    console.log("JWT generado correctamente, solicitando token de instalación");
+
+    // Obtener el token de instalación usando el JWT
+    const response = await fetch(
+      `https://api.github.com/app/installations/${GITHUB_INSTALLATION_ID}/access_tokens`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+          Accept: "application/vnd.github.v3+json",
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    // Verificar si la respuesta fue exitosa
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        `Error obteniendo token de instalación: ${response.status} ${response.statusText} - ${errorText}`
+      );
+    }
+
+    // Extraer el token y la fecha de expiración
+    const data = await response.json();
 
     // Almacenar en caché
-    cachedToken = { token, expiresAt: new Date(expiresAt).getTime() };
+    // GitHub devuelve la fecha de expiración como una cadena ISO 8601
+    cachedToken = {
+      token: data.token,
+      expiresAt: new Date(data.expires_at).getTime(),
+    };
 
-    return token;
+    console.log(
+      "Token de instalación obtenido correctamente, expira:",
+      data.expires_at
+    );
+
+    return data.token;
   } catch (error) {
     console.error("Error al obtener token de instalación de GitHub:", error);
     throw error;

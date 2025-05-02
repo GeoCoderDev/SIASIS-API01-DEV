@@ -52,13 +52,13 @@ import { buscarProfesorSecundariaPorDNISelect } from "../../../../core/databases
 
 import { buscarPersonalAdministrativoPorDNISelect } from "../../../../core/databases/queries/RDP02/personal-administrativo/buscarPersonalAdministrativoPorDNI";
 import { actualizarseAuxiliar } from "../../../../core/databases/queries/RDP02/auxiliares/actualizarseAuxiliar";
-import { actualizarContraseñaDirectivo } from "../../../../core/databases/queries/RDP02/directivos/actualizarContraseñaDirectivo";
 import { actualizarseProfesorSecundaria } from "../../../../core/databases/queries/RDP02/profesor-secundaria/actualizarseProfesorSecundaria";
 import { actualizarseProfesorPrimaria } from "../../../../core/databases/queries/RDP02/profesor-primaria/actualizarseProfesorPrimaria";
 import { actualizarsePersonalAdministrativo } from "../../../../core/databases/queries/RDP02/personal-administrativo/actualizarsePersonalAdministrativo";
 import { handleSQLError } from "../../../lib/helpers/handlers/errors/postgreSQL";
 import { buscarProfesorPrimariaPorDNIConAula } from "../../../../core/databases/queries/RDP02/profesor-primaria/buscarProfesorPrimariaPorDNIConAula";
 import { buscarTutorPorDNIConAula } from "../../../../core/databases/queries/RDP02/profesor-secundaria/buscarTutorPorDNIConAula";
+import { actualizarseDirectivo } from "../../../../core/databases/queries/RDP02/directivos/actualizarseDirectivo";
 
 const router = Router();
 
@@ -367,7 +367,7 @@ router.put("/", (async (req: Request, res: Response) => {
 
     switch (Rol) {
       case RolesSistema.Directivo:
-        updated = await actualizarContraseñaDirectivo(
+        updated = await actualizarseDirectivo(
           (userData as DirectivoAuthenticated).Id_Directivo,
           updatedFields,
           rdp02EnUso

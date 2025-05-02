@@ -9,7 +9,7 @@ import { query } from "../../../connectors/postgres";
  * @param instanciaEnUso Instancia específica donde ejecutar la consulta (opcional)
  * @returns true si la actualización fue exitosa, false si no se encontró el directivo
  */
-export async function actualizarDirectivo(
+export async function actualizarseDirectivo(
   idDirectivo: number,
   datos: {
     DNI?: string;
