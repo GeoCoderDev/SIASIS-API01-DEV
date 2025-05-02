@@ -1,5 +1,4 @@
-// Reemplaza la importación estática por esta solución compatible con CommonJS
-// Archivo: /var/task/core/external/github/EMCS01/getInstallationToken.js
+
 
 // Declaramos el tipo para el createAppAuth
 type CreateAppAuthType = (options: {

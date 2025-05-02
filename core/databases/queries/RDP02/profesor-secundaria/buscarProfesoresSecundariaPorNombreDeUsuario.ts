@@ -40,49 +40,4 @@ export async function buscarProfesorSecundariaPorNombreUsuario(
   return null;
 }
 
-// /**
-//  * Busca un profesor de secundaria por su nombre de usuario y obtiene también sus aulas asignadas
-//  * @param nombreUsuario Nombre de usuario del profesor de secundaria
-//  * @param instanciaEnUso Instancia específica donde ejecutar la consulta (opcional)
-//  * @returns Datos del profesor con sus aulas asignadas o null si no existe
-//  */
-// export async function buscarProfesorSecundariaConAulas(
-//   nombreUsuario: string,
-//   instanciaEnUso?: RDP02
-// ): Promise<ProfesorSecundariaConAulas | null> {
-//   // Primero obtenemos los datos del profesor
-//   const sqlProfesor = `
-//     SELECT *
-//     FROM "T_Profesores_Secundaria"
-//     WHERE "Nombre_Usuario" = $1
-//   `;
 
-//   const resultProfesor = await query<T_Profesores_Secundaria>(
-//     instanciaEnUso,
-//     sqlProfesor,
-//     [nombreUsuario]
-//   );
-
-//   if (resultProfesor.rows.length === 0) {
-//     return null;
-//   }
-
-//   const profesor = resultProfesor.rows[0];
-
-//   // Ahora obtenemos las aulas asignadas
-//   const sqlAulas = `
-//     SELECT "Id_Aula", "Nivel", "Grado", "Seccion", "Color"
-//     FROM "T_Aulas"
-//     WHERE "DNI_Profesor_Secundaria" = $1
-//   `;
-
-//   const resultAulas = await query<
-//     Pick<T_Aulas, "Id_Aula" | "Nivel" | "Grado" | "Seccion" | "Color">
-//   >(instanciaEnUso, sqlAulas, [profesor.DNI_Profesor_Secundaria]);
-
-//   // Combinamos los resultados
-//   return {
-//     ...profesor,
-//     aulas: resultAulas.rows,
-//   };
-// }
