@@ -1,3 +1,4 @@
+import axios from 'axios';
 import * as jwt from 'jsonwebtoken';
 
 // Cache para el token de instalación
@@ -54,33 +55,18 @@ export async function getGithubActionsInstallationToken(): Promise<string> {
     
     console.log("JWT generado correctamente, solicitando token de instalación");
 
-    // IMPORTANTE: Usar await explícitamente y asegurarse de que se maneje correctamente la promesa
-    const response = await fetch(
+    const response = await axios.post(
       `https://api.github.com/app/installations/${GITHUB_INSTALLATION_ID}/access_tokens`,
+      {},
       {
-        method: 'POST',
         headers: {
           'Authorization': `Bearer ${jwtToken}`,
           'Accept': 'application/vnd.github.v3+json',
           'Content-Type': 'application/json'
         }
       }
-    ).catch(error => {
-      console.error("Error en la solicitud fetch:", error);
-      throw new Error(`Error al hacer fetch al API de GitHub: ${error.message}`);
-    });
-
-    console.log("Respuesta recibida del API de GitHub:", response.status);
-
-    // Verificar si la respuesta fue exitosa
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Error en respuesta de GitHub:", errorText);
-      throw new Error(`Error obteniendo token de instalación: ${response.status} ${response.statusText}`);
-    }
-
-    // Extraer el token y la fecha de expiración
-    const data = await response.json();
+    );
+    const data = response.data;
     
     // Almacenar en caché
     cachedToken = { 
