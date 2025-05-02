@@ -9,12 +9,11 @@ import {
 
 import { ErrorObjectGeneric } from "../interfaces/shared/apis/errors/details";
 import {
-  PermissionErrorTypes,
   SystemErrorTypes,
   TokenErrorTypes,
   UserErrorTypes,
 } from "../interfaces/shared/apis/errors";
-import { buscarAulasAsignadasProfesorSecundaria } from "../../core/databases/queries/RDP02/profesor-secundaria/buscarProfesorSecundariaPorDNI";
+import { buscarTutorPorDNIConAula } from "../../core/databases/queries/RDP02/profesor-secundaria/buscarTutorPorDNIConAula";
 
 // Middleware para verificar si el usuario es un Tutor de Secundaria
 const isTutorAuthenticated = async (
@@ -107,28 +106,29 @@ const isTutorAuthenticated = async (
           return; // La función verificarBloqueoRol ya llamó a next()
         }
 
-        // Verificar si el profesor de secundaria (tutor) existe y está activo
-        // Reemplazo de la llamada a Prisma por la función desacoplada
-        const profesor = await buscarAulasAsignadasProfesorSecundaria(
-          decodedPayload.ID_Usuario
-        );
+        // Utilizar la nueva función buscarTutorPorDNIConAula en lugar de buscarAulasAsignadasProfesorSecundaria
+        // Esta función ya verificará si es un tutor válido (tiene aula asignada)
+        const tutor = await buscarTutorPorDNIConAula(decodedPayload.ID_Usuario);
 
-        if (!profesor || !profesor.Estado) {
+        // Si no se encuentra el tutor o no está activo
+        if (!tutor) {
+          req.authError = {
+            type: UserErrorTypes.USER_NOT_FOUND,
+            message: "No se encontró al tutor o no tiene un aula asignada",
+          };
+          return next();
+        }
+
+        if (!tutor.Estado) {
           req.authError = {
             type: UserErrorTypes.USER_INACTIVE,
-            message: "La cuenta de profesor está inactiva o no existe",
+            message: "La cuenta de tutor está inactiva",
           };
           return next();
         }
 
-        // Verificar que el profesor tenga un aula asignada (lo que lo convierte en tutor)
-        if (profesor.aulas.length === 0) {
-          req.authError = {
-            type: PermissionErrorTypes.INSUFFICIENT_PERMISSIONS,
-            message: "El profesor no tiene un aula asignada como tutor",
-          };
-          return next();
-        }
+        // Ya no es necesario verificar si tiene aulas asignadas,
+        // buscarTutorPorDNIConAula solo retorna tutores con aula asignada
       } catch (dbError) {
         req.authError = {
           type: SystemErrorTypes.DATABASE_ERROR,
@@ -147,7 +147,6 @@ const isTutorAuthenticated = async (
       // Marcar como autenticado para que los siguientes middlewares no reprocesen
       req.isAuthenticated = true;
       req.userRole = RolesSistema.Tutor;
-      req.RDP02_INSTANCE = decodedPayload.RDP02_INSTANCE;
 
       // Si todo está bien, continuar
       next();

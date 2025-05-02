@@ -20,7 +20,7 @@ import {
 import { ErrorResponseAPIBase } from "../../../../interfaces/shared/apis/types";
 import { verificarBloqueoRolProfesorSecundaria } from "../../../../../core/databases/queries/RDP02/bloqueo-roles/verificarBloqueoRolProfesorSecundaria";
 import { verificarBloqueoRolTutor } from "../../../../../core/databases/queries/RDP02/bloqueo-roles/verificarBloqueoRolTutorSecundaria";
-import { buscarProfesorSecundariaConAulas } from "../../../../../core/databases/queries/RDP02/profesor-secundaria/buscarProfesoresSecundariaPorNombreDeUsuario";
+import { buscarTutorPorNombreUsuarioConAula } from "../../../../../core/databases/queries/RDP02/profesor-secundaria/buscarTutorPorNombreDeUsuarioConAula";
 
 const router = Router();
 
@@ -280,7 +280,7 @@ router.post("/", (async (req: Request, res: Response) => {
     }
 
     // Buscar el profesor de secundaria por nombre de usuario (con sus aulas)
-    const profesorSecundaria = await buscarProfesorSecundariaConAulas(
+    const profesorSecundaria = await buscarTutorPorNombreUsuarioConAula(
       Nombre_Usuario
     );
 
@@ -320,7 +320,7 @@ router.post("/", (async (req: Request, res: Response) => {
     }
 
     // Determinar si es tutor (tiene aula asignada)
-    const esTutor = profesorSecundaria.aulas.length > 0;
+    const esTutor = profesorSecundaria.aula !== null;
 
     // Generar token JWT según el rol
     let token;

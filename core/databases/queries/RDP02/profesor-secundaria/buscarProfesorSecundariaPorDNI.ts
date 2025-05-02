@@ -72,42 +72,4 @@ export async function buscarProfesorSecundariaPorDNISelect<
   return null;
 }
 
-/**
- * Verifica si un profesor tiene aulas asignadas (para determinar si es tutor)
- * @param dniProfesor DNI del profesor de secundaria
- * @param instanciaEnUso Instancia específica donde ejecutar la consulta (opcional)
- * @returns Información de aulas asignadas o null si no existe
- */
-export async function buscarAulasAsignadasProfesorSecundaria(
-  dniProfesor: string,
-  instanciaEnUso?: RDP02
-): Promise<{ Estado: boolean; aulas: { Id_Aula: number }[] } | null> {
-  const sql = `
-    SELECT 
-      p."Estado",
-      COALESCE(
-        (
-          SELECT json_agg(json_build_object('Id_Aula', a."Id_Aula"))
-          FROM "T_Aulas" a
-          WHERE a."DNI_Profesor_Secundaria" = p."DNI_Profesor_Secundaria"
-        ),
-        '[]'
-      ) as aulas
-    FROM "T_Profesores_Secundaria" p
-    WHERE p."DNI_Profesor_Secundaria" = $1
-  `;
 
-  // Operación de lectura
-  const result = await query<{ Estado: boolean; aulas: { Id_Aula: number }[] }>(
-    instanciaEnUso,
-    sql,
-    [dniProfesor],
-    RolesSistema.Tutor
-  );
-
-  if (result.rows.length > 0) {
-    return result.rows[0];
-  }
-
-  return null;
-}
