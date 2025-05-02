@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { RolesSistema } from "../interfaces/shared/RolesSistema";
-import { PrismaClient } from "@prisma/client";
 import { verificarBloqueoRol } from "../lib/helpers/verificators/verificarBloqueoRol";
 import {
   JWTPayload,
@@ -15,8 +14,7 @@ import {
   TokenErrorTypes,
   UserErrorTypes,
 } from "../interfaces/shared/apis/errors";
-
-const prisma = new PrismaClient();
+import { buscarAulasAsignadasProfesorSecundaria } from "../../core/databases/queries/RDP02/profesor-secundaria/buscarProfesorSecundariaPorDNI";
 
 // Middleware para verificar si el usuario es un Tutor de Secundaria
 const isTutorAuthenticated = async (
@@ -110,19 +108,10 @@ const isTutorAuthenticated = async (
         }
 
         // Verificar si el profesor de secundaria (tutor) existe y está activo
-        const profesor = await prisma.t_Profesores_Secundaria.findUnique({
-          where: {
-            DNI_Profesor_Secundaria: decodedPayload.ID_Usuario,
-          },
-          select: {
-            Estado: true,
-            aulas: {
-              select: {
-                Id_Aula: true,
-              },
-            },
-          },
-        });
+        // Reemplazo de la llamada a Prisma por la función desacoplada
+        const profesor = await buscarAulasAsignadasProfesorSecundaria(
+          decodedPayload.ID_Usuario
+        );
 
         if (!profesor || !profesor.Estado) {
           req.authError = {
@@ -158,6 +147,7 @@ const isTutorAuthenticated = async (
       // Marcar como autenticado para que los siguientes middlewares no reprocesen
       req.isAuthenticated = true;
       req.userRole = RolesSistema.Tutor;
+      req.RDP02_INSTANCE = decodedPayload.RDP02_INSTANCE;
 
       // Si todo está bien, continuar
       next();

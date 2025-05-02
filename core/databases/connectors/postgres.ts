@@ -92,7 +92,7 @@ function getRandomInstance(): RDP02 {
  * @param text Consulta SQL
  * @param params Parámetros de la consulta
  * @param rol Rol del usuario que ejecuta la consulta (opcional para lecturas)
- * @param rolesAfectados Roles cuyos datos serán afectados (requerido para operaciones de escritura)
+ * @param rolesAfectados Roles cuyos datos serán afectados (opcional para operaciones de escritura, por defecto afecta a todos)
  * @returns Resultado de la consulta
  */
 export async function query<T extends QueryResultRow = any>(
@@ -132,9 +132,11 @@ export async function query<T extends QueryResultRow = any>(
       );
     }
 
+    // Si no se proporcionan roles afectados, considerar que afecta a todos los roles
     if (!rolesAfectados || rolesAfectados.length === 0) {
-      throw new Error(
-        "Para operaciones de escritura, se requiere especificar los roles afectados"
+      rolesAfectados = Object.values(RolesSistema);
+      console.log(
+        "No se especificaron roles afectados. Considerando que afecta a TODOS los roles."
       );
     }
   }
@@ -218,13 +220,13 @@ export async function query<T extends QueryResultRow = any>(
  * Ejecuta una transacción en la base de datos
  * @param instanciaEnUso Instancia donde se ejecutará la transacción (obligatorio)
  * @param callback Función que contiene las operaciones de la transacción
- * @param rolesAfectados Roles cuyos datos serán afectados (obligatorio para transacciones)
+ * @param rolesAfectados Roles cuyos datos serán afectados (opcional, por defecto afecta a todos)
  * @returns Resultado de la transacción
  */
 export async function transaction<T = any>(
   instanciaEnUso: RDP02,
   callback: (client: any) => Promise<T>,
-  rolesAfectados: RolesSistema[]
+  rolesAfectados?: RolesSistema[]
 ): Promise<T> {
   // Validar parámetros requeridos
   if (!instanciaEnUso) {
@@ -233,9 +235,11 @@ export async function transaction<T = any>(
     );
   }
 
+  // Si no se proporcionan roles afectados, considerar que afecta a todos los roles
   if (!rolesAfectados || rolesAfectados.length === 0) {
-    throw new Error(
-      "Para transacciones, se requiere especificar los roles afectados"
+    rolesAfectados = Object.values(RolesSistema);
+    console.log(
+      "No se especificaron roles afectados en la transacción. Considerando que afecta a TODOS los roles."
     );
   }
 
@@ -385,14 +389,14 @@ export const postgresClient = {
    * @param instancia Instancia donde se ejecutará inicialmente la operación (obligatorio)
    * @param text Consulta SQL (debe ser de escritura)
    * @param params Parámetros de la consulta
-   * @param rolesAfectados Roles cuyos datos serán afectados (obligatorio)
+   * @param rolesAfectados Roles cuyos datos serán afectados (opcional, por defecto afecta a todos)
    * @returns Resultado de la operación
    */
   write: async <T extends QueryResultRow = any>(
     instancia: RDP02,
     text: string,
     params: any[] = [],
-    rolesAfectados: RolesSistema[]
+    rolesAfectados?: RolesSistema[]
   ): Promise<QueryResult<T>> => {
     // Verificar que sea una operación de escritura
     if (esOperacionBDLectura(text)) {
@@ -408,11 +412,7 @@ export const postgresClient = {
       );
     }
 
-    if (!rolesAfectados || rolesAfectados.length === 0) {
-      throw new Error(
-        "Para operaciones de escritura, se requiere especificar los roles afectados"
-      );
-    }
+    // Si no se proporcionan roles afectados, se usará por defecto todos los roles en la función query
 
     // Ejecutar la consulta
     return await query<T>(instancia, text, params, undefined, rolesAfectados);
@@ -422,13 +422,13 @@ export const postgresClient = {
    * Ejecuta una transacción en una instancia específica y replica las operaciones de escritura
    * @param instancia Instancia donde se ejecutará la transacción (obligatorio)
    * @param callback Función que contiene las operaciones de la transacción
-   * @param rolesAfectados Roles cuyos datos serán afectados (obligatorio)
+   * @param rolesAfectados Roles cuyos datos serán afectados (opcional, por defecto afecta a todos)
    * @returns Resultado de la transacción
    */
   transaction: async <T = any>(
     instancia: RDP02,
     callback: (client: any) => Promise<T>,
-    rolesAfectados: RolesSistema[]
+    rolesAfectados?: RolesSistema[]
   ): Promise<T> => {
     return await transaction<T>(instancia, callback, rolesAfectados);
   },
