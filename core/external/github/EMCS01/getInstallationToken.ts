@@ -1,12 +1,11 @@
-import * as jwt from "jsonwebtoken";
+import * as jwt from 'jsonwebtoken';
 
 // Cache para el token de instalación
 let cachedToken: { token: string; expiresAt: number } | null = null;
 
 // Variables de entorno para la autenticación de GitHub
 const GITHUB_APP_ID = process.env.EMCS01_GITHUB_APP_ID || "";
-const GITHUB_INSTALLATION_ID =
-  process.env.EMCS01_GITHUB_APP_INSTALLATION_ID || "";
+const GITHUB_INSTALLATION_ID = process.env.EMCS01_GITHUB_APP_INSTALLATION_ID || "";
 const GITHUB_PRIVATE_KEY = process.env.EMCS01_GITHUB_PRIVATE_KEY || "";
 
 /**
@@ -29,78 +28,67 @@ export async function getGithubActionsInstallationToken(): Promise<string> {
   try {
     // Validar que las variables de entorno estén disponibles
     if (!GITHUB_APP_ID) {
-      throw new Error(
-        "GITHUB_APP_ID no está definido en las variables de entorno"
-      );
+      throw new Error("GITHUB_APP_ID no está definido en las variables de entorno");
     }
 
     if (!GITHUB_INSTALLATION_ID) {
-      throw new Error(
-        "GITHUB_INSTALLATION_ID no está definido en las variables de entorno"
-      );
+      throw new Error("GITHUB_INSTALLATION_ID no está definido en las variables de entorno");
     }
 
     if (!GITHUB_PRIVATE_KEY) {
-      throw new Error(
-        "GITHUB_PRIVATE_KEY no está definido en las variables de entorno"
-      );
+      throw new Error("GITHUB_PRIVATE_KEY no está definido en las variables de entorno");
     }
 
     console.log("Generando nuevo JWT para autenticación de GitHub");
-
+    
     // Crear un JWT para autenticar como GitHub App
     const nowInSeconds = Math.floor(Date.now() / 1000);
     const payload = {
-      // Issued at time
       iat: nowInSeconds,
-      // JWT expiration time (10 minute maximum)
-      exp: nowInSeconds + 10 * 60,
-      // GitHub App's identifier
-      iss: GITHUB_APP_ID,
+      exp: nowInSeconds + (10 * 60),
+      iss: GITHUB_APP_ID
     };
 
     // Generar el JWT con la clave privada
-    const jwtToken = jwt.sign(payload, GITHUB_PRIVATE_KEY, {
-      algorithm: "RS256",
-    });
-
+    const jwtToken = jwt.sign(payload, GITHUB_PRIVATE_KEY, { algorithm: 'RS256' });
+    
     console.log("JWT generado correctamente, solicitando token de instalación");
 
-    // Obtener el token de instalación usando el JWT
+    // IMPORTANTE: Usar await explícitamente y asegurarse de que se maneje correctamente la promesa
     const response = await fetch(
       `https://api.github.com/app/installations/${GITHUB_INSTALLATION_ID}/access_tokens`,
       {
-        method: "POST",
+        method: 'POST',
         headers: {
-          Authorization: `Bearer ${jwtToken}`,
-          Accept: "application/vnd.github.v3+json",
-          "Content-Type": "application/json",
-        },
+          'Authorization': `Bearer ${jwtToken}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json'
+        }
       }
-    );
+    ).catch(error => {
+      console.error("Error en la solicitud fetch:", error);
+      throw new Error(`Error al hacer fetch al API de GitHub: ${error.message}`);
+    });
+
+    console.log("Respuesta recibida del API de GitHub:", response.status);
 
     // Verificar si la respuesta fue exitosa
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(
-        `Error obteniendo token de instalación: ${response.status} ${response.statusText} - ${errorText}`
-      );
+      console.error("Error en respuesta de GitHub:", errorText);
+      throw new Error(`Error obteniendo token de instalación: ${response.status} ${response.statusText}`);
     }
 
     // Extraer el token y la fecha de expiración
     const data = await response.json();
-
+    
     // Almacenar en caché
-    // GitHub devuelve la fecha de expiración como una cadena ISO 8601
-    cachedToken = {
-      token: data.token,
-      expiresAt: new Date(data.expires_at).getTime(),
+    cachedToken = { 
+      token: data.token, 
+      expiresAt: new Date(data.expires_at).getTime() 
     };
-
-    console.log(
-      "Token de instalación obtenido correctamente, expira:",
-      data.expires_at
-    );
+    
+    console.log("Token de instalación obtenido correctamente, expira:", data.expires_at);
 
     return data.token;
   } catch (error) {
