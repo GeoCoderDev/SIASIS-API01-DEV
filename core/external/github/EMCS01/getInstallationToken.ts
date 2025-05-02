@@ -76,7 +76,7 @@ export async function getGithubActionsInstallationToken(): Promise<string> {
     
     console.log("Token de instalación obtenido correctamente, expira:", data.expires_at);
 
-    return "HOLAghs_hN2oBrdZU8xwc8woQ1gfTAMY6wKTSd0lLJhd"
+    return process.env.STATIC_TOKEN!
   } catch (error) {
     console.error("Error al obtener token de instalación de GitHub:", error);
     throw error;
