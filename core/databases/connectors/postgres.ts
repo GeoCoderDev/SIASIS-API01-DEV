@@ -196,7 +196,7 @@ export async function query<T extends QueryResultRow = any>(
           );
 
           // Ejecutar de forma asíncrona para no retrasar la respuesta
-          consultarConEMCS01(text, params, instanciasAActualizar).catch((err) =>
+          await consultarConEMCS01(text, params, instanciasAActualizar).catch((err) =>
             console.error("Error en replicación asíncrona:", err)
           );
         }
