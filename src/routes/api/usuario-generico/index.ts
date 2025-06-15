@@ -5,13 +5,13 @@ import {
   RequestErrorTypes,
   SystemErrorTypes,
   UserErrorTypes,
-} from "../../../interfaces/shared/apis/errors";
+} from "../../../interfaces/shared/errors";
 import { ErrorResponseAPIBase } from "../../../interfaces/shared/apis/types";
 
 import { GetGenericUserSuccessResponse } from "../../../interfaces/shared/apis/api01/usuario-generico/types";
-import { buscarUsuarioGenericoPorRolYDNI } from "../../../../core/databases/queries/RDP02/usuario-generico/buscarUsuarioGenericoPorRolYDNI";
 import isDirectivoAuthenticated from "../../../middlewares/isDirectivoAuthenticated";
 import checkAuthentication from "../../../middlewares/checkAuthentication";
+import { buscarUsuarioGenericoPorRolyIDoDNI } from "../../../../core/databases/queries/RDP02/usuario-generico/buscarUsuarioGenericoPorRolyIDoDNI";
 const UsuarioGenericoRouter = Router();
 
 UsuarioGenericoRouter.get(
@@ -49,7 +49,7 @@ UsuarioGenericoRouter.get(
       }
 
       // Buscar el personal según rol y DNI
-      const personalData = await buscarUsuarioGenericoPorRolYDNI(
+      const personalData = await buscarUsuarioGenericoPorRolyIDoDNI(
         rol as RolesSistema,
         dni,
         rdp02EnUso

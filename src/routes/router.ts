@@ -2,8 +2,8 @@
 import { Router } from "express";
 
 import { UserAuthenticatedAPI01 } from "../interfaces/shared/JWTPayload";
-import AllErrorTypes from "../interfaces/shared/apis/errors";
-import { ErrorDetails } from "../interfaces/shared/apis/errors/details";
+import AllErrorTypes from "../interfaces/shared/errors";
+import { ErrorDetails } from "../interfaces/shared/errors/details";
 import isDirectivoAuthenticated from "../middlewares/isDirectivoAuthenticated";
 import checkAuthentication from "../middlewares/checkAuthentication";
 
