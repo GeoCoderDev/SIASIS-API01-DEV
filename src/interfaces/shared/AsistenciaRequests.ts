@@ -113,7 +113,7 @@ export interface IniciarTomaAsistenciaRequestBody {
 export interface AsistenciaMensualPersonal {
   Id_Registro_Mensual: number;
   mes: Meses;
-  Dni_Personal: string;
+  ID_o_Dni_Personal: string;
   registros: Record<string, RegistroEntradaSalida>;
 }
 
@@ -132,7 +132,7 @@ export interface RegistroEntradaSalidaPersonal {
 
 // Interface para el request body
 export interface EliminarAsistenciaRequestBody {
-  DNI: string;
+  ID_o_DNI: string;
   Actor: ActoresSistema;
   ModoRegistro: ModoRegistro;
   TipoAsistencia: TipoAsistencia;

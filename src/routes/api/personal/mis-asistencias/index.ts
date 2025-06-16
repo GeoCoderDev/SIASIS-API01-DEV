@@ -20,7 +20,7 @@ import {
   GetAsistenciaMensualDePersonalSuccessResponse,
 } from "../../../../interfaces/shared/apis/api01/personal/types";
 import { Meses } from "../../../../interfaces/shared/Meses";
-import { buscarUsuarioGenericoPorRolyIDoDNI } from "../../../../../core/databases/queries/RDP02/usuario-generico/buscarUsuarioGenericoPorRolyIDoDNI";
+import { buscarUsuarioGenericoPorRolyIDoDNI } from "../../../../../core/databases/queries/RDP02/usuarios-genericos/buscarUsuarioGenericoPorRolyIDoDNI";
 
 const MisAsistenciasMensualesRouter = Router();
 
