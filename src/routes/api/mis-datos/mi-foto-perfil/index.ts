@@ -89,20 +89,20 @@ router.put("/", upload.single("foto"), (async (req: Request, res: Response) => {
         identificador = (userData as DirectivoAuthenticated).Id_Directivo;
         break;
       case RolesSistema.Auxiliar:
-        identificador = (userData as AuxiliarAuthenticated).DNI_Auxiliar;
+        identificador = (userData as AuxiliarAuthenticated).Id_Auxiliar;
         break;
       case RolesSistema.ProfesorPrimaria:
         identificador = (userData as ProfesorPrimariaAuthenticated)
-          .DNI_Profesor_Primaria;
+          .Id_Profesor_Primaria;
         break;
       case RolesSistema.ProfesorSecundaria:
       case RolesSistema.Tutor:
         identificador = (userData as ProfesorTutorSecundariaAuthenticated)
-          .DNI_Profesor_Secundaria;
+          .Id_Profesor_Secundaria;
         break;
       case RolesSistema.PersonalAdministrativo:
         identificador = (userData as PersonalAdministrativoAuthenticated)
-          .DNI_Personal_Administrativo;
+          .Id_Personal_Administrativo;
         break;
 
       default:
