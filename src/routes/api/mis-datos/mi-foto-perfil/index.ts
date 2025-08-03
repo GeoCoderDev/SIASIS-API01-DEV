@@ -104,11 +104,7 @@ router.put("/", upload.single("foto"), (async (req: Request, res: Response) => {
         identificador = (userData as PersonalAdministrativoAuthenticated)
           .DNI_Personal_Administrativo;
         break;
-      /* 
-        case RolesSistema.Responsable:
-          identificador = (userData as ResponsableAuthenticated).DNI_Responsable;
-          break;
-        */
+
       default:
         return res.status(400).json({
           success: false,
