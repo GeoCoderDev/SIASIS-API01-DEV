@@ -1,15 +1,10 @@
 import { query } from "../../../connectors/postgres";
 import { RDP02 } from "../../../../../src/interfaces/shared/RDP02Instancias";
 import { ProfesorSecundariaListItem } from "../../../../../src/interfaces/shared/apis/api01/profesores-secundaria/types";
-
-export interface FiltrosBusquedaProfesorSecundaria {
-  Identificador?: string;
-  Nombres?: string;
-  Apellidos?: string;
-  SinAula: boolean;
-  Grado?: number | null;
-  Seccion?: string | null;
-}
+import {
+  construirWhereProfesoresSecundaria,
+  FiltrosBusquedaProfesorSecundaria,
+} from "./construirWhereProfesoresSecundaria";
 
 // Shape crudo tal cual viene de la fila SQL (no es el tipo expuesto por la función)
 interface FilaProfesorSecundariaConAula {
@@ -28,54 +23,23 @@ interface FilaProfesorSecundariaConAula {
 
 export async function buscarProfesoresSecundariaConFiltros(
   filtros: FiltrosBusquedaProfesorSecundaria,
-  instanciaEnUso?: RDP02,
+  instanciaEnUso: RDP02 | undefined,
+  numeroPagina: number,
+  cantidadResultadosPorPagina: number,
 ): Promise<ProfesorSecundariaListItem[]> {
-  const condiciones: string[] = [];
-  const valores: any[] = [];
-  let contador = 1;
+  const { whereClause, valores, siguienteContador } =
+    construirWhereProfesoresSecundaria(filtros);
 
-  if (filtros.Identificador) {
-    condiciones.push(`ps."Id_Profesor_Secundaria" ILIKE $${contador}`);
-    valores.push(`%${filtros.Identificador}%`);
-    contador++;
-  }
+  // Parámetros de paginación van al final, continuando la numeración de $N
+  const offset = (numeroPagina - 1) * cantidadResultadosPorPagina;
+  const paramLimit = siguienteContador;
+  const paramOffset = siguienteContador + 1;
 
-  if (filtros.Nombres) {
-    condiciones.push(`ps."Nombres" ILIKE $${contador}`);
-    valores.push(`%${filtros.Nombres}%`);
-    contador++;
-  }
-
-  if (filtros.Apellidos) {
-    condiciones.push(`ps."Apellidos" ILIKE $${contador}`);
-    valores.push(`%${filtros.Apellidos}%`);
-    contador++;
-  }
-
-  const condicionesAula: string[] = [`a."Id_Aula" IS NOT NULL`];
-
-  if (filtros.Grado !== undefined && filtros.Grado !== null) {
-    condicionesAula.push(`a."Grado" = $${contador}`);
-    valores.push(filtros.Grado);
-    contador++;
-  }
-
-  if (filtros.Seccion !== undefined && filtros.Seccion !== null) {
-    condicionesAula.push(`a."Seccion" = $${contador}`);
-    valores.push(filtros.Seccion);
-    contador++;
-  }
-
-  const bloqueConAula = `(${condicionesAula.join(" AND ")})`;
-
-  const condicionAulaFinal = filtros.SinAula
-    ? `(a."Id_Aula" IS NULL OR ${bloqueConAula})`
-    : bloqueConAula;
-
-  condiciones.push(condicionAulaFinal);
-
-  const whereClause =
-    condiciones.length > 0 ? `WHERE ${condiciones.join(" AND ")}` : "";
+  const valoresConPaginacion = [
+    ...valores,
+    cantidadResultadosPorPagina,
+    offset,
+  ];
 
   const sql = `
     SELECT 
@@ -94,12 +58,13 @@ export async function buscarProfesoresSecundariaConFiltros(
     LEFT JOIN "T_Aulas" a ON a."Id_Profesor_Secundaria" = ps."Id_Profesor_Secundaria"
     ${whereClause}
     ORDER BY ps."Apellidos", ps."Nombres"
+    LIMIT $${paramLimit} OFFSET $${paramOffset}
   `;
 
   const result = await query<FilaProfesorSecundariaConAula>(
     instanciaEnUso,
     sql,
-    valores,
+    valoresConPaginacion,
   );
 
   const profesores: ProfesorSecundariaListItem[] = result.rows.map((fila) => ({

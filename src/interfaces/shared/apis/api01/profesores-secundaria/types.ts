@@ -34,15 +34,35 @@ export interface RegistroProfesorSecundariaRequestBody {
 }
 
 export interface RegistroProfesorSecundariaSuccessResponse extends SuccessResponseAPIBase {
-    data: ProfesorSecundariaSinContraseña;
+  data: ProfesorSecundariaSinContraseña;
 }
 
 // --------------------------------------------------------------------------------------
 //                          CONSULTAS DE PROFESORES DE SECUNDARIA
 // --------------------------------------------------------------------------------------
 
+export type AulaQueryParamType = `${string},${string}`;
+
+export interface GetProfesoresSecundariaAPI01QueryParams {
+  Identificador: string;
+  Nombres: string;
+  Apellidos: string;
+  SinAula: boolean;
+  Aula: AulaQueryParamType;
+  Numero_Pagina: number;
+  Cantidad_Resultados_Por_Pagina?: number;
+}
+
+export interface PaginacionInfo {
+  Pagina_Actual: number;
+  Cantidad_Resultados_Por_Pagina: number;
+  Total_Resultados: number;
+  Total_Paginas: number;
+}
+
 export interface GetProfesoresSecundariaSuccessResponse extends SuccessResponseAPIBase {
   data: ProfesorSecundariaListItem[];
+  paginacion: PaginacionInfo;
 }
 
 export interface GetProfesorSecundariaSuccessResponse extends SuccessResponseAPIBase {

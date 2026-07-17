@@ -14,14 +14,26 @@ import {
 } from "../../../interfaces/shared/apis/api01/profesores-secundaria/types";
 import { buscarProfesoresSecundariaConFiltros } from "../../../../core/databases/queries/RDP02/profesor-secundaria/buscarProfesoresSecundariaConFiltros";
 import { obtenerDetallesDeProfesorSecundariaPorId } from "../../../../core/databases/queries/RDP02/profesor-secundaria/obtenerDetallesDeProfesorSecundariaPorId";
+import { contarProfesoresSecundariaConFiltros } from "../../../../core/databases/queries/RDP02/profesor-secundaria/contarProfesoresSecundariaConFiltros";
 
 const router = Router();
+
+const CANTIDAD_RESULTADOS_POR_PAGINA_DEFAULT = 10;
+const CANTIDAD_RESULTADOS_POR_PAGINA_MAXIMA = 100;
 
 // Listar / buscar profesores de secundaria con filtros
 router.get("/", (async (req: Request, res: Response) => {
   try {
     const rdp02EnUso = req.RDP02_INSTANCE!;
-    const { Identificador, Nombres, Apellidos, SinAula, Aula } = req.query;
+    const {
+      Identificador,
+      Nombres,
+      Apellidos,
+      SinAula,
+      Aula,
+      Numero_Pagina,
+      Cantidad_Resultados_Por_Pagina,
+    } = req.query;
 
     const sinAulaBool =
       typeof SinAula === "string" ? SinAula.toLowerCase() === "true" : false;
@@ -61,31 +73,136 @@ router.get("/", (async (req: Request, res: Response) => {
       }
     }
 
-    const profesores = await buscarProfesoresSecundariaConFiltros(
-      {
-        Identificador:
-          typeof Identificador === "string" && Identificador.length > 0
-            ? Identificador
-            : undefined,
-        Nombres:
-          typeof Nombres === "string" && Nombres.length > 0
-            ? Nombres
-            : undefined,
-        Apellidos:
-          typeof Apellidos === "string" && Apellidos.length > 0
-            ? Apellidos
-            : undefined,
-        SinAula: sinAulaBool,
-        Grado: grado,
-        Seccion: seccion,
-      },
-      rdp02EnUso,
+    // ------------------------------------------------------------------
+    //                 VALIDACIÓN DE PAGINACIÓN
+    // ------------------------------------------------------------------
+
+    // Numero_Pagina es obligatorio
+    if (typeof Numero_Pagina !== "string" || Numero_Pagina.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "El parámetro 'Numero_Pagina' es obligatorio",
+        errorType: RequestErrorTypes.INVALID_PARAMETERS,
+      } as ErrorResponseAPIBase);
+    }
+
+    if (!/^-?\d+$/.test(Numero_Pagina)) {
+      return res.status(400).json({
+        success: false,
+        message: "El parámetro 'Numero_Pagina' debe ser un número entero",
+        errorType: RequestErrorTypes.INVALID_PARAMETERS,
+      } as ErrorResponseAPIBase);
+    }
+
+    const numeroPagina = parseInt(Numero_Pagina, 10);
+
+    if (numeroPagina === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No existe la página 0. La numeración de páginas inicia en 1",
+        errorType: RequestErrorTypes.INVALID_PARAMETERS,
+      } as ErrorResponseAPIBase);
+    }
+
+    if (numeroPagina < 0) {
+      return res.status(400).json({
+        success: false,
+        message: "El parámetro 'Numero_Pagina' no puede ser negativo",
+        errorType: RequestErrorTypes.INVALID_PARAMETERS,
+      } as ErrorResponseAPIBase);
+    }
+
+    // Cantidad_Resultados_Por_Pagina es opcional, con valor por defecto
+    let cantidadResultadosPorPagina = CANTIDAD_RESULTADOS_POR_PAGINA_DEFAULT;
+
+    if (
+      typeof Cantidad_Resultados_Por_Pagina === "string" &&
+      Cantidad_Resultados_Por_Pagina.length > 0
+    ) {
+      if (!/^-?\d+$/.test(Cantidad_Resultados_Por_Pagina)) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "El parámetro 'Cantidad_Resultados_Por_Pagina' debe ser un número entero",
+          errorType: RequestErrorTypes.INVALID_PARAMETERS,
+        } as ErrorResponseAPIBase);
+      }
+
+      const cantidad = parseInt(Cantidad_Resultados_Por_Pagina, 10);
+
+      if (cantidad === 0) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "El parámetro 'Cantidad_Resultados_Por_Pagina' no puede ser 0",
+          errorType: RequestErrorTypes.INVALID_PARAMETERS,
+        } as ErrorResponseAPIBase);
+      }
+
+      if (cantidad < 0) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "El parámetro 'Cantidad_Resultados_Por_Pagina' no puede ser negativo",
+          errorType: RequestErrorTypes.INVALID_PARAMETERS,
+        } as ErrorResponseAPIBase);
+      }
+
+      if (cantidad > CANTIDAD_RESULTADOS_POR_PAGINA_MAXIMA) {
+        return res.status(400).json({
+          success: false,
+          message: `El parámetro 'Cantidad_Resultados_Por_Pagina' no puede superar ${CANTIDAD_RESULTADOS_POR_PAGINA_MAXIMA}`,
+          errorType: RequestErrorTypes.INVALID_PARAMETERS,
+        } as ErrorResponseAPIBase);
+      }
+
+      cantidadResultadosPorPagina = cantidad;
+    }
+
+    // ------------------------------------------------------------------
+
+    const filtros = {
+      Identificador:
+        typeof Identificador === "string" && Identificador.length > 0
+          ? Identificador
+          : undefined,
+      Nombres:
+        typeof Nombres === "string" && Nombres.length > 0 ? Nombres : undefined,
+      Apellidos:
+        typeof Apellidos === "string" && Apellidos.length > 0
+          ? Apellidos
+          : undefined,
+      SinAula: sinAulaBool,
+      Grado: grado,
+      Seccion: seccion,
+    };
+
+    // Conteo total y datos paginados en paralelo
+    const [totalResultados, profesores] = await Promise.all([
+      contarProfesoresSecundariaConFiltros(filtros, rdp02EnUso),
+      buscarProfesoresSecundariaConFiltros(
+        filtros,
+        rdp02EnUso,
+        numeroPagina,
+        cantidadResultadosPorPagina,
+      ),
+    ]);
+
+    const totalPaginas = Math.max(
+      1,
+      Math.ceil(totalResultados / cantidadResultadosPorPagina),
     );
 
     return res.status(200).json({
       success: true,
       message: "Profesores de secundaria obtenidos exitosamente",
       data: profesores,
+      paginacion: {
+        Pagina_Actual: numeroPagina,
+        Cantidad_Resultados_Por_Pagina: cantidadResultadosPorPagina,
+        Total_Resultados: totalResultados,
+        Total_Paginas: totalPaginas,
+      },
     } as GetProfesoresSecundariaSuccessResponse);
   } catch (error) {
     console.error("Error al obtener profesores de secundaria:", error);
