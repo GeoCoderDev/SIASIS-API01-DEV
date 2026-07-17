@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  url      = env("RDP02_INS1_DATABASE_URL")
 }
 
 datasource db {
