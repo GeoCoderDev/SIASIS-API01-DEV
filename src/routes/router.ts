@@ -10,6 +10,7 @@ import loginRouter from "./api/login";
 import misDatosRouter from "./api/mis-datos";
 import auxiliaresRouter from "./api/auxiliares";
 import profesoresSecundariaRouter from "./api/profesores-secundaria";
+import profesoresPrimariaRouter from "./api/profesores-primaria";
 import personalAdministrativoRouter from "./api/personal-administrativo";
 import modificacionesTablasRouter from "./api/modificaciones-tablas";
 
@@ -79,6 +80,14 @@ router.use(
   isDirectivoAuthenticated as any,
   checkAuthentication as any,
   profesoresSecundariaRouter
+);
+
+router.use(
+  "/profesores-primaria",
+  decodedRol as any,
+  isDirectivoAuthenticated as any,
+  checkAuthentication as any,
+  profesoresPrimariaRouter
 );
 
 router.use(
